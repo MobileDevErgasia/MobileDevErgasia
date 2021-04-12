@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">MobileDevErgasia</string>
+    <string name="app_name">VoiceRecord</string>
+    <string name="start_recording">Start Recording</string>
+    <string name="stop_recording">Stop Recording</string>
+    <string name="started_recording">Started recording</string>
+    <string name="stopped_recording">Finished recording</string>
 </resources>
