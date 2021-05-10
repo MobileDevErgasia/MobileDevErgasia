@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:title="@string/SettingAutoLoop"
+        android:background="@color/white"
+        android:key="AutoLoop"
+        android:defaultValue="true"
+        android:summaryOn="@string/AutoLoopSummaryOn"
+        android:summaryOff="@string/AutoLoopSummaryOff"/>
+
+    <ListPreference
+        android:defaultValue="false"
+        android:title="@string/SettingsDuration"
+        android:negativeButtonText="@string/cancel"
+        android:key="maxRecordDuration"
+        android:entries="@array/maxDuration"
+        android:entryValues="@array/item_value"/>
+
+    <ListPreference
+        android:title="@string/select_language"
+        android:negativeButtonText="@string/cancel"
+        android:defaultValue="false"
+        android:key="selectLanguage"
+        android:entries="@array/Languages"
+        android:entryValues="@array/LanguageValues"
+        />
+
+
+</PreferenceScreen>

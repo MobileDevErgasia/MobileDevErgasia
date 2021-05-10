@@ -4,14 +4,25 @@ package com.example.mobiledevergasia;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Chronometer;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
 import java.io.File;
+import java.util.Locale;
+
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 /**
  * TODO
@@ -19,7 +30,7 @@ import java.io.File;
 public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog.SaveDialogListener {
 
 
-    private ImageButton recordButton,stopPlayingButton;
+    private ImageButton recordButton,stopPlayingButton,settingsButton;
     private File folder,temporaryFile,finalFile;
 
     private CustomListHandler customListHandler;
@@ -29,6 +40,7 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
 
     private Chronometer chronometer;
     private Toolbar myToolbar;
+    private String recordingDurationText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +52,7 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
         //αρικοποιηση
         recordButton =findViewById(R.id.recordButton);
         stopPlayingButton=findViewById(R.id.stopPlayingButton);
+        settingsButton=findViewById(R.id.settingsButton);
 
         chronometer=findViewById(R.id.simpleChronometer);
 
@@ -60,13 +73,19 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
             }
         });
 
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openSettings();
+            }
+        });
+
         chronometer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
             @Override
             public void onChronometerTick(Chronometer chronometer) {
 
-                if (chronometer.getText().toString().endsWith("15")){//το endswith("15") σημαινει
-                    stopClock();                                     //οταν το χρονομετρο γραψει "00:15" θα σταματησει η ηχογραφηση
-                    //stopRecording();
+                if (chronometer.getText().toString().endsWith(recordingDurationText)){//το endswith("15") σημαινει
+                    stopClock();                                     //πχ οταν το χρονομετρο γραψει "00:15" θα σταματησει η ηχογραφηση
                     stopRecording();
                 }
 
@@ -95,6 +114,20 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
             }
         });
 
+    }
+
+    /**
+     * Ανοιγει το Setting.class,καλειται απο το
+     * settingsButton
+     */
+    private void openSettings(){
+        hideStopButton();
+
+
+        Intent intent= new Intent(getApplicationContext(),Settings.class);
+        String currentLanguage=Locale.getDefault().getLanguage();
+        intent.putExtra("language",currentLanguage);
+        startActivity(intent);
     }
 
     /**
@@ -235,9 +268,55 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
         finalFile=check(finalFile,0);
         temporaryFile.renameTo(finalFile);
         customListHandler.addToList(finalFile.getPath(),name); //προσθηκη ηχογραφησης στην λιστα αν αλλαξει το name
-
     }
 
+    /**
+     * Φορτωνει τα settings,καλειται απτην onResume η οποια γινεται override
+     * Πιο συγκεκριμενα,την μεγιστη διαρκεια ηχογραφησης
+     * την γλωσσα και την αυτοματη επαναληψη.
+     */
+    private void loadSettings(){
+        SharedPreferences sharedPreferences= PreferenceManager.getDefaultSharedPreferences(this);
+        String tempKey=sharedPreferences.getString("maxRecordDuration","10");
+        switch(tempKey){
+            case "1" :
+                recordingDurationText="05";
+                break;
+            case "2" :
+                recordingDurationText="10";
+                break;
+            case "3" :
+                recordingDurationText="15";
+                break;
+            case "4" :
+                recordingDurationText="20";
+                break;
+        }
+
+        boolean toAutoLoop=sharedPreferences.getBoolean("AutoLoop",false);
+        customListHandler.setAutoLooping(toAutoLoop);
+
+        String language=sharedPreferences.getString("selectLanguage","el");
+
+        switch (language){
+            case "el": setLocale(this,"el"); break;
+            case "en": setLocale(this,"en"); break;
+        }
+    }
+
+    /**
+     *  Αλλαζει την γλωσσα των ρυθμισεων
+     * @param activity το VoiceRecordActivity
+     * @param languageCode ο κωδικος της γλωσσας, el για ελληνικα,en για αγγλικα
+     */
+    private static void setLocale(Activity activity, String languageCode) {
+        Locale locale = new Locale(languageCode);
+        Locale.setDefault(locale);
+        Resources resources = activity.getResources();
+        Configuration config = resources.getConfiguration();
+        config.setLocale(locale);
+        resources.updateConfiguration(config, resources.getDisplayMetrics());
+    }
 
     /**
      * Οταν σταματαει η εφαρμογη,πχ παει στο background,ελευθερονεται ο mediaRecorder
@@ -246,16 +325,36 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
      */
     @Override
     public void onStop() {
+        if(recorder.isRecording()){
+            recorder.clear();
+            customListHandler.stop();
+            stopClock();
+            recordButton.setImageResource(R.drawable.start_recording_image);
+            temporaryFile.delete();
+        }
         super.onStop();
-        recorder.clear();
-        customListHandler.stop();
+    }
+
+    /**
+     * Καλει την loadSettings
+     */
+    @Override
+    public void onResume(){
+        super.onResume();
+        loadSettings();
 
     }
 
+    /**
+     * Κρυβει το stopButton
+     */
     private void hideStopButton(){
         stopPlayingButton.setVisibility(View.GONE);
     }
 
+    /**
+     * Εμφανιζει το stopButton
+     */
     private void showStopButton() {
         stopPlayingButton.setVisibility(View.VISIBLE);
     }

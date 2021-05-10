@@ -81,6 +81,7 @@ public class Recorder  {
         if (mediaRecorder != null) {
             mediaRecorder.release();
             mediaRecorder = null;
+            isRecording=false;
         }
     }
 }

@@ -341,6 +341,12 @@ public class CustomListHandler  {
         this.customListListener =customListListener;
     }
 
+    public void setAutoLooping(Boolean b){
+        for (CustomItem item : myList){
+            item.setToAutoLoop(b);
+        }
+    }
+
     /**
      * interface της κλασης,χρησιμοποιειται απο την VoiceRecordActivity
      * η συναρτηση onStartPlaying καλειται οταν ενα αντικειμενο ξεκιναει την αναπαραγωγη

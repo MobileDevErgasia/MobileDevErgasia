@@ -10,4 +10,29 @@
     <string name="items_selected">Item(s) Seleceted</string>
     <string name="WrongInputMessage">Can only contain letters and/or numbers!</string>
     <string name="defaultName" translatable="false">MyRecording</string>
+    <string name="SettingAutoLoop">Auto Loop</string>
+    <string name="AutoLoopSummaryOn">Auto Looping is Activated</string>
+    <string name="AutoLoopSummaryOff">Auto Looping is Deactivated</string>
+    <string name="SettingsDuration">Max Recording Duration</string>
+    <string name="select_language">Select Language</string>
+    <string-array name="Languages">
+        <item>Ελληνικα</item>
+        <item>English</item>
+    </string-array>
+    <string-array name="LanguageValues">
+        <item>el</item>
+        <item>en</item>
+    </string-array>
+    <string-array name="maxDuration">
+        <item>5sec</item>
+        <item>10sec</item>
+        <item>15sec</item>
+        <item>20sec</item>
+    </string-array>
+    <string-array name="item_value">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
 </resources>

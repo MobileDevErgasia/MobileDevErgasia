@@ -9,4 +9,9 @@
     <string name="save_recording">Αποθήκευση Ηχογράφησης</string>
     <string name="items_selected">Επιλεγμένα Αντικείμενα</string>
     <string name="WrongInputMessage">Μπορούν να χρησιμοποιηθούν μόνο γράμματα και/ή αριθμοί!</string>
+    <string name="SettingsDuration">Μέγιστη Διάρκεια Ηχογράφησης</string>
+    <string name="SettingAutoLoop">Αυτόματη Επανάληψη</string>
+    <string name="AutoLoopSummaryOn">Η Αυτόματη Επανάληψη ενεργοποιήθηκε</string>
+    <string name="AutoLoopSummaryOff">Η Αυτόματη Επανάληψη απενεργοποιήθηκε</string>
+    <string name="select_language">Επιλέξτε Γλώσσα</string>
 </resources>

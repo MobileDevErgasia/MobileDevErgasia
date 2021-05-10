@@ -3,6 +3,8 @@ package com.example.mobiledevergasia;
 import android.media.MediaPlayer;
 import android.view.View;
 
+import com.example.mobiledevergasia.R;
+
 import java.io.IOException;
 
 /**
@@ -11,6 +13,7 @@ import java.io.IOException;
  * path : το μονοπατι που βρισκεται το αρχειο που αντιστοιχει σε αυτο το αντικειμενο
  * desc : περιγραφη του αρχειου,χρησιμοποειται στην εμφανιση του στο gridView
  * playing : boolean μεταβλητη που ελεγχει αν ο mediaPlayer παιζει
+ * toAutoLoop : boolean μεταβλητη που ελεγχει αν mediaPlayer θα κανει αυτοματη επαναληψη,ρυθμιζεται απο τα settings,default τιμη false
  * isChecked : boolean μεταπλητη που ελεγχει αν το αντικειμενο ειναι επιλεγμενο ή οχι
  * listener : interface της κλασης καλειται οταν ενα αντικειμενο τελειωσει την αναπαραγωγη του
  * myView : το View που αντιστοιχει στο αντικειμενο
@@ -18,7 +21,7 @@ import java.io.IOException;
  */
 public class CustomItem {
     private String path,desc;
-    private boolean playing,isChecked;
+    private boolean playing,isChecked,toAutoLoop;
 
     private customItemListener listener;
 
@@ -31,11 +34,19 @@ public class CustomItem {
      * @param desc Περιγραφη του αρχειου,χρησιμοποειται στην εμφανιση του στο gridView
      */
     public CustomItem(String path, String desc){
-
         this.path=path;
         this.desc=desc;
         playing=false;
         isChecked=false;
+        toAutoLoop=false;
+    }
+
+    /**
+     *
+     * @param b true για αυτοματη επαναληψη, false για να σταματαει την πρωτη φορα
+     */
+    public void setToAutoLoop(Boolean b){
+        toAutoLoop=b;
     }
 
     /**
@@ -119,7 +130,7 @@ public class CustomItem {
         });
 
         try{
-
+            mediaPlayer.setLooping(toAutoLoop);
             mediaPlayer.setDataSource(filePath);
             mediaPlayer.prepare();
             mediaPlayer.start();
