@@ -8,16 +8,18 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-
 import java.util.ArrayList;
 
+/**
+ * Adapter που προτιθεται στο gridView. Προσθετει τα CustomItems.
+ */
 public class CustomArrayAdapter extends ArrayAdapter<CustomItem> {
-    public CustomArrayAdapter(@NonNull Context context, int resource, @NonNull ArrayList<CustomItem> customLists ) {
-        super(context, resource, customLists);
+    public CustomArrayAdapter(@NonNull Context context, int resource, @NonNull ArrayList<CustomItem> customItems) {
+        super(context, resource, customItems);
     }
 
     @NonNull
@@ -25,13 +27,14 @@ public class CustomArrayAdapter extends ArrayAdapter<CustomItem> {
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View listItemView=convertView;
         if (listItemView == null){
-            listItemView= LayoutInflater.from(getContext()).inflate(R.layout.line_layout,parent,false);
+            listItemView= LayoutInflater.from(getContext()).inflate(R.layout.item_layout,parent,false);
         }
 
         CustomItem currentItem= getItem(position);
-        ImageView image=(ImageView)listItemView.findViewById(R.id.image);
         TextView desc=listItemView.findViewById(R.id.desc);
         desc.setText(currentItem.getDesc());
+        ImageView imageView=listItemView.findViewById(R.id.soundOnImageView);
+        imageView.setImageResource(R.drawable.sound_on_image);
 
         return listItemView;
 

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="start_recording">Εκκίνηση Ηχογράφησης</string>
+    <string name="stop_recording">Τέλος Ηχογράφησης</string>
+    <string name="started_recording">Ξεκίνησε η Ηχογράφηση</string>
+    <string name="stopped_recording">Τελείωσε η Ηχογράφηση</string>
+    <string name="save">Αποθήκευση</string>
+    <string name="cancel">Ακύρωση</string>
+    <string name="save_recording">Αποθήκευση Ηχογράφησης</string>
+    <string name="items_selected">Επιλεγμένα Αντικείμενα</string>
+    <string name="WrongInputMessage">Μπορούν να χρησιμοποιηθούν μόνο γράμματα και/ή αριθμοί!</string>
+</resources>

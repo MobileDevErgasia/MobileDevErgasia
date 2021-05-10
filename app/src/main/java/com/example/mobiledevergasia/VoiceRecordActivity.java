@@ -2,61 +2,61 @@ package com.example.mobiledevergasia;
 
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
+import androidx.appcompat.widget.Toolbar;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.media.MediaPlayer;
-import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Chronometer;
-import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.IOException;
 
-public class VoiceRecordActivity extends AppCompatActivity {
+/**
+ * TODO
+ */
+public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog.SaveDialogListener {
 
-    private Button button;
-    private MediaRecorder mediaRecorder;
-    private File folder;
-    private EditText textView;
+
+    private ImageButton recordButton,stopPlayingButton;
+    private File folder,temporaryFile,finalFile;
 
     private CustomListHandler customListHandler;
+    private Recorder recorder;
 
-    private boolean recording;
     private String filename;
 
     private Chronometer chronometer;
+    private Toolbar myToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-             setContentView(R.layout.activity_voice_record);
-
-        //Ζηταει τις απαραιτητες αδειες
-
-
-        recording=false;
+        setContentView(R.layout.activity_voice_record);
+        myToolbar=findViewById(R.id.myToolbar);
+        setSupportActionBar(myToolbar);
 
         //αρικοποιηση
+        recordButton =findViewById(R.id.recordButton);
+        stopPlayingButton=findViewById(R.id.stopPlayingButton);
+
         chronometer=findViewById(R.id.simpleChronometer);
 
-        mediaRecorder=new MediaRecorder();
+        recorder=new Recorder();
 
-        button=findViewById(R.id.button);
+        recordButton.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View v) {
+               buttonClick();
+           }
+        });
 
-        textView=findViewById(R.id.textView);
-
-        button.setOnClickListener(new View.OnClickListener() {
+        stopPlayingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ButtonClick();
+                customListHandler.stop();
+                stopPlayingButton.setVisibility(View.GONE);
             }
         });
 
@@ -66,6 +66,7 @@ public class VoiceRecordActivity extends AppCompatActivity {
 
                 if (chronometer.getText().toString().endsWith("15")){//το endswith("15") σημαινει
                     stopClock();                                     //οταν το χρονομετρο γραψει "00:15" θα σταματησει η ηχογραφηση
+                    //stopRecording();
                     stopRecording();
                 }
 
@@ -78,20 +79,36 @@ public class VoiceRecordActivity extends AppCompatActivity {
         }
 
         //κλαση που χειριζεται τα αντικειμενα της λιστας με της ηχογραφησεις
-        //todo : πιο ομορφη λιστα
-        customListHandler = new CustomListHandler(findViewById(R.id.voiceRecord),getApplicationContext());
-        filename=folder + "/";
+        customListHandler = new CustomListHandler(findViewById(R.id.voice_record_activity),getApplicationContext());
+        customListHandler.setCustomListListener(new CustomListHandler.CustomListListener() {
+            @Override
+            public void onStartPlaying() {
+                showStopButton();
+            }
+
+            @Override
+            public void onStopPlaying() {
+                if(!customListHandler.areItemsPlaying()){
+                    hideStopButton();
+
+                }
+            }
+        });
+
     }
 
     /**
      * Την πρωτη φορα που θα πατηθει το κουμπι ξεκιναει η ηχογραφηση
      * Την δευτερη σταματαει και αποθηκευεται.
      */
-    private void ButtonClick(){
-        if (!recording){
+    private void buttonClick(){
+        if (!recorder.isRecording()){
+            recordButton.setImageResource(R.drawable.stop_recording_image);
             startClock();
             startRecording();
         }else{
+            recordButton.setImageResource(R.drawable.start_recording_image);
+
             stopClock();
             stopRecording();
         }
@@ -118,87 +135,36 @@ public class VoiceRecordActivity extends AppCompatActivity {
 
     /**
      * Ξεκιναει η ηχογραφηση
+     * Οταν ξεκινησει η ηχογραφηση θελουμε να σταματησουν
+     * να παιζουν τυχον αλλες ηχογραφησεις
+     * Δινεται ενα dummy ονομα στο αρχειο το οποιο χρησιμοποιειται για την αποθηκευση
+     * Στην συνεχεια αυτο μπορει να αλλαξει απο τον χρηστη
+     * Χρησιμοποιειται η startRecording(File temporaryFile) του Recorder
      */
     private void startRecording(){
-        customListHandler.stop(); //Οταν ξεκινησει η ηχογραφηση θελουμε να σταματησουν να παιζουν τυχον αλλες ηχογραφησεις
+        customListHandler.stop();
 
         Toast.makeText(VoiceRecordActivity.this,R.string.started_recording, Toast.LENGTH_SHORT).show();
 
-        if (mediaRecorder==null){//ηχογραφηση του mediaRecorder,ειναι η κλαση που χρησιμοποιειται για την ηχογραφηση
-            mediaRecorder=new MediaRecorder();
-        }
+        String dummy = "dummy";
+        filename=folder+ "/" + dummy + ".mp3"; //δινεται ενα dummy μοναδικο ονομα το οποιο στην συνεχεια αλλαζει.
 
-        //Θα αλλαξει αυτο,αλλα προς το παρον:
-        //Παιρνει το κειμενο απο το editText,αν ειναι κενο παιρνουμε ενα timestamp ουσιαστικα
-        //Αν δεν ειναι,χρησιμοποιουμε το κειμενο που εχει δωσει ο χρηστης
-        //todo : ελεγχο οτι δεν εχει περιεργους χαρακτηρες (. / ! κλπ)
-        String temp=textView.getText().toString();
-        if (temp.equals("")){
-            Long tsLong = System.currentTimeMillis()/1000;
-            String ts = tsLong.toString();
-            filename= filename + ts + ".mp3";
-        }else{
-            filename=filename+ temp + ".mp3";
-        }
+        temporaryFile=new File(filename );
 
-        File file=new File(filename );
-        write(file); //συναρτηση για την δημιουργεια του αρχειου.
-        filename=folder + "/"; //reset
-
-
-        customListHandler.add(file.getPath(),filename); //προσθηκη ηχογραφησης στην λιστα
-
-        //google
-        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        mediaRecorder.setOutputFile(file.getAbsolutePath());
-        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-        mediaRecorder.setAudioChannels(1);
-
-        try {
-            mediaRecorder.prepare();
-            mediaRecorder.start();
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-
-        button.setText(R.string.stop_recording);
-        recording=true;
+        recorder.startRecording(temporaryFile);
     }
 
     /**
-     * Σταματαει η ηχογραφηση
+     * Σταματαει η ηχογραφηση και καλειται η showSaveDialog για να δωσει ο χρηστης
+     * το ονομα που επιθυμει ή να ακυρωσει την αποθηκευση της
+     * Χρησιμοποιειται η stopRecording() του Recorder
      */
     private void stopRecording(){
-
         Toast.makeText(VoiceRecordActivity.this, R.string.stopped_recording , Toast.LENGTH_SHORT).show();
 
-        try {
-            mediaRecorder.stop();
-            mediaRecorder.reset();
-            mediaRecorder.release();
-            mediaRecorder=null;
+        recorder.stopRecording();
 
-        }catch (IllegalStateException e){
-            e.printStackTrace();
-        }
-
-        button.setText(R.string.start_recording);
-        recording=false;
-
-    }
-
-    /**
-     * Δημιουργει το αρχειο στο οποιο θα αποθηκευτει η ηχογραφηση
-     * @param file το αρχειο
-     */
-    private  void write(File file)  {
-        file=check(file,0); //συναρτηση που υλοποιειται παρακατω
-        try {
-            file.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        showSaveDialog();
     }
 
     /**
@@ -209,21 +175,19 @@ public class VoiceRecordActivity extends AppCompatActivity {
      * @return επιστρεφει το αρχειο.
      */
     private  File check(File oldFile, int found){
-
-        System.out.println("CHEKING  " + oldFile.getName());
-
         File newFile=new File(oldFile.getAbsolutePath());
 
         if (oldFile.exists()){
-            String t=oldFile.getAbsolutePath();
+            String temporaryName=oldFile.getAbsolutePath();
 
             if (found==0){
-                t=t.replaceFirst("\\.mp3","(1).mp3");
+                temporaryName=temporaryName.replaceFirst("\\.mp3","(1).mp3");
 
             }else{
-                t= t.replaceFirst("(\\(\\d\\))","(" + (found+1) + ")");
+                temporaryName= temporaryName.replaceFirst("(\\(\\d\\))","(" + (found+1) + ")");
+                //αν πχ εχουμε το αρχειο με ονομα myRecording(2),αντικαθιστα το (2) με το (3)
             }
-            newFile=new File(t);
+            newFile=new File(temporaryName);
             newFile=check(newFile,++found);
         }else{
             return newFile;
@@ -232,18 +196,67 @@ public class VoiceRecordActivity extends AppCompatActivity {
     }
 
     /**
+     * Εμφανιζει το dialog για να δωθει ονομα στην ηχογραφηση
+     */
+    private void showSaveDialog(){
+        SaveDialog saveDialog=new SaveDialog();
+        saveDialog.show(getSupportFragmentManager(), "saveDialog");
+    }
+
+    /**
+     * Αν πατηθει το cancel στο SaveDialog ακυρωνεται η ηχογραφηση
+     */
+    @Override
+    public void cancelled() {
+        temporaryFile.delete();
+    }
+
+    /**
+     * Ελεγχεται αν ειναι ενεργοποιημενη η επιλογη πολλαπλων στοιχειων
+     *      Αν ειναι καλειται η backPressed() του CustomListHandler
+     */
+    @Override
+    public void onBackPressed() {
+        if(customListHandler.isToCheck()){
+            customListHandler.backPressed();
+        }else{
+            super.onBackPressed();
+        }
+    }
+
+    /**
+     * Αλλαζει το ονομα της ηχογραφησης στο επιθυμητο
+     * και το προσθετει στο GridView
+     * @param name το επιθυμητο ονομα
+     */
+    @Override
+    public void saveFileAs(String name) {
+        finalFile=new File(folder + "/" + name + ".mp3");
+        finalFile=check(finalFile,0);
+        temporaryFile.renameTo(finalFile);
+        customListHandler.addToList(finalFile.getPath(),name); //προσθηκη ηχογραφησης στην λιστα αν αλλαξει το name
+
+    }
+
+
+    /**
      * Οταν σταματαει η εφαρμογη,πχ παει στο background,ελευθερονεται ο mediaRecorder
-     * και ο mediaPlayer μεσω της customListHandler.clear() για να μην σπαταλιζονται ποροι
+     * μεσω της recorded.clear() και ο mediaPlayer μεσω της
+     * customListHandler.clear() για να μην σπαταλιζονται ποροι
      */
     @Override
     public void onStop() {
         super.onStop();
-        if (mediaRecorder != null) {
-            mediaRecorder.release();
-            mediaRecorder = null;
-        }
-        customListHandler.clear();
+        recorder.clear();
+        customListHandler.stop();
 
     }
 
+    private void hideStopButton(){
+        stopPlayingButton.setVisibility(View.GONE);
+    }
+
+    private void showStopButton() {
+        stopPlayingButton.setVisibility(View.VISIBLE);
+    }
 }
