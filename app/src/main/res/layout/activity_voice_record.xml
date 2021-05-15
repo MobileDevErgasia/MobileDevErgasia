@@ -38,34 +38,6 @@
                 app:title=" " />
 
             <ImageView
-                android:id="@+id/deleteImageView"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:layout_marginEnd="16dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.545"
-                app:srcCompat="@drawable/trash_can_image" />
-
-            <TextView
-                android:id="@+id/itemsSelectedTextView"
-                android:layout_width="232dp"
-                android:layout_height="45dp"
-                android:layout_marginEnd="8dp"
-                android:text="@string/items_selected"
-                android:textColor="@color/white"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:visibility="visible"
-                app:autoSizeMaxTextSize="24sp"
-                app:autoSizeMinTextSize="16sp"
-                app:autoSizeTextType="uniform"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/deleteImageView"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageView
                 android:id="@+id/cancelImageView"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
@@ -80,7 +52,6 @@
                 android:id="@+id/counterTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="45dp"
-                android:layout_marginEnd="2dp"
                 android:text=""
                 android:textAlignment="center"
                 android:textColor="@color/white"
@@ -88,10 +59,50 @@
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/itemsSelectedTextView"
-                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintHorizontal_bias="0.29"
                 app:layout_constraintStart_toEndOf="@+id/cancelImageView"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.545" />
+
+            <TextView
+                android:id="@+id/itemsSelectedTextView"
+                android:layout_width="160dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="16dp"
+                android:text="@string/items_selected"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:visibility="visible"
+                app:autoSizeMaxTextSize="20sp"
+                app:autoSizeMinTextSize="14sp"
+                app:autoSizeTextType="uniform"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/editImageView"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.545" />
+
+            <ImageView
+                android:id="@+id/editImageView"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="12dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/deleteImageView"
+                app:layout_constraintTop_toTopOf="@+id/myToolbar"
+                app:layout_constraintVertical_bias="0.545"
+                app:srcCompat="@drawable/edit_image" />
+
+            <ImageView
+                android:id="@+id/deleteImageView"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.545"
+                app:srcCompat="@drawable/trash_can_image" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -99,8 +110,8 @@
 
     <GridView
         android:id="@+id/gridView"
-        android:layout_width="match_parent"
-        android:layout_height="626dp"
+        android:layout_width="410dp"
+        android:layout_height="578dp"
         android:layout_marginTop="56dp"
         android:layout_marginBottom="120dp"
         android:columnWidth="72dp"
@@ -111,7 +122,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appbarlayout" />
+        app:layout_constraintTop_toBottomOf="@+id/appbarlayout"
+        app:layout_constraintVertical_bias="0.708" />
 
     <Chronometer
         android:id="@+id/simpleChronometer"
@@ -120,9 +132,10 @@
         android:layout_marginBottom="16dp"
         android:textColor="@color/white"
         android:textSize="32sp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.15"
+        app:layout_constraintHorizontal_bias="0.062"
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageButton

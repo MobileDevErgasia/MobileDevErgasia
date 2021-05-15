@@ -15,6 +15,10 @@
     <string name="AutoLoopSummaryOff">Auto Looping is Deactivated</string>
     <string name="SettingsDuration">Max Recording Duration</string>
     <string name="select_language">Select Language</string>
+    <string name="change_text_color">Change Text Color</string>
+    <string name="change_file_name">Change File Name:</string>
+    <string name="finish">Finish</string>
+    <string name="reset">Reset</string>
     <string-array name="Languages">
         <item>Ελληνικα</item>
         <item>English</item>

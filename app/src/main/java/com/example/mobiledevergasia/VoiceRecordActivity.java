@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -17,6 +18,7 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Chronometer;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -122,6 +124,7 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
      */
     private void openSettings(){
         hideStopButton();
+        customListHandler.cancel();
 
 
         Intent intent= new Intent(getApplicationContext(),Settings.class);
@@ -136,12 +139,9 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
      */
     private void buttonClick(){
         if (!recorder.isRecording()){
-            recordButton.setImageResource(R.drawable.stop_recording_image);
             startClock();
             startRecording();
         }else{
-            recordButton.setImageResource(R.drawable.start_recording_image);
-
             stopClock();
             stopRecording();
         }
@@ -152,6 +152,8 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
      * Ξεκιναει το χρονομετρο
      */
     private void startClock(){
+        chronometer.setVisibility(View.VISIBLE);
+
         chronometer.setBase(SystemClock.elapsedRealtime());
 
         chronometer.start();
@@ -161,6 +163,8 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
      * Σταματαει το χρονομετρο
      */
     private void stopClock(){
+        chronometer.setVisibility(View.INVISIBLE);
+
         chronometer.setText("00:00");
 
         chronometer.stop();
@@ -176,6 +180,8 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
      */
     private void startRecording(){
         customListHandler.stop();
+        recordButton.setImageResource(R.drawable.stop_recording_image);
+
 
         Toast.makeText(VoiceRecordActivity.this,R.string.started_recording, Toast.LENGTH_SHORT).show();
 
@@ -193,6 +199,7 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
      * Χρησιμοποιειται η stopRecording() του Recorder
      */
     private void stopRecording(){
+        recordButton.setImageResource(R.drawable.start_recording_image);
         Toast.makeText(VoiceRecordActivity.this, R.string.stopped_recording , Toast.LENGTH_SHORT).show();
 
         recorder.stopRecording();
@@ -302,10 +309,11 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
             case "el": setLocale(this,"el"); break;
             case "en": setLocale(this,"en"); break;
         }
+
     }
 
     /**
-     *  Αλλαζει την γλωσσα των ρυθμισεων
+     *  Αλλαζει την γλωσσα των στοιχειων
      * @param activity το VoiceRecordActivity
      * @param languageCode ο κωδικος της γλωσσας, el για ελληνικα,en για αγγλικα
      */
@@ -342,6 +350,31 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
     public void onResume(){
         super.onResume();
         loadSettings();
+
+        Intent intent=getIntent();
+        if(intent.hasExtra("textColor")){
+            String name=intent.getStringExtra("name");
+            String path=intent.getStringExtra("path");
+            int index=intent.getIntExtra("index",0);
+            int red=intent.getIntExtra("red",0);
+            int green=intent.getIntExtra("green",0);
+            int blue=intent.getIntExtra("blue",0);
+            int textColor=intent.getIntExtra("textColor", Color.WHITE);
+            CustomItem item=new CustomItem(path,name);
+            item.setBackgroundColor(red,green,blue);
+            item.setTextColor(textColor);
+
+
+
+            //TODO change path
+            customListHandler.replace(index,item);
+        }else if (intent.hasExtra("Reset")){
+            int index=intent.getIntExtra("index",0);
+            String name=intent.getStringExtra("name");
+            String path=intent.getStringExtra("path");
+            CustomItem item=new CustomItem(path,name);
+            customListHandler.replace(index,item);
+        }
 
     }
 

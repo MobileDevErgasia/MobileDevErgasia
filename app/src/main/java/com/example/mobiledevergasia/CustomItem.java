@@ -1,12 +1,18 @@
 package com.example.mobiledevergasia;
 
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.view.View;
+
+import androidx.annotation.NonNull;
 
 import com.example.mobiledevergasia.R;
 
 import java.io.IOException;
-
+//Todo javadoc genika kai return to default.
 /**
  * Κλαση για τα αντικειμενα του gridView
  *              Μεταβλητες :
@@ -19,12 +25,13 @@ import java.io.IOException;
  * myView : το View που αντιστοιχει στο αντικειμενο
  * mediaPlayer : MediaPLayer μεταβλητη χρησιμοποιεται για την αναπαραγωγη της ηχογραφησης που αντιστοιχει στο αντικειμενο
  */
-public class CustomItem {
+public class CustomItem  {
     private String path,desc;
-    private boolean playing,isChecked,toAutoLoop;
+    private boolean playing,isChecked,toAutoLoop,backgroundColorEdited,textColorEdited;
 
     private customItemListener listener;
 
+    private int red,green,blue,textColor;
     private View myView;
     public MediaPlayer mediaPlayer;
 
@@ -39,6 +46,27 @@ public class CustomItem {
         playing=false;
         isChecked=false;
         toAutoLoop=false;
+        backgroundColorEdited=false;
+        textColorEdited=false;
+        textColor=Color.WHITE;
+    }
+
+    public void setPath(String s){path=s;}
+
+    public void setDesc(String s){
+        desc=s;
+    }
+
+    public void setTextColor(int color){
+        textColor=color;
+        textColorEdited=true;
+    }
+
+    public void setBackgroundColor(int red, int green, int blue){
+        this.red=red;
+        this.green=green;
+        this.blue=blue;
+        backgroundColorEdited=true;
     }
 
     /**
@@ -66,6 +94,13 @@ public class CustomItem {
         myView = view;
     }
 
+    public void reset(){
+        backgroundColorEdited=false;
+        textColorEdited=false;
+        textColor=Color.WHITE;
+
+    }
+
     /**
      *
      * @return Επιστρεφει την περιγραφη του αντικειμενου,χρησιμοποειται στην εμφανιση του στο gridView
@@ -81,6 +116,18 @@ public class CustomItem {
     public String getPath(){
         return path;
     }
+
+    public int getTextColor(){return  textColor;}
+
+    public int getBackgroundColor(){
+        return Color.rgb(red,green,blue);
+    }
+
+    public Boolean isBackgroundColorEdited(){
+        return backgroundColorEdited;
+    }
+
+    public Boolean isTextColorEdited(){return textColorEdited;}
 
     /**
      *
@@ -159,11 +206,22 @@ public class CustomItem {
 
     @Override
     public String toString() {
-        return "CustomList{" +
+        return "CustomItem{" +
                 "path='" + path + '\'' +
                 ", desc='" + desc + '\'' +
+                ", playing=" + playing +
+                ", isChecked=" + isChecked +
+                ", toAutoLoop=" + toAutoLoop +
+                ", backgroundColorEdited=" + backgroundColorEdited +
+                ", listener=" + listener +
+                ", red=" + red +
+                ", green=" + green +
+                ", blue=" + blue +
+                ", myView=" + myView +
+                ", mediaPlayer=" + mediaPlayer +
                 '}';
     }
+
 
     /**
      * interface της κλασης,χρησιμοποιειται απο την CustomListHandler

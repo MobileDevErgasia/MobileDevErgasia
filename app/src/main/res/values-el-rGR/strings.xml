@@ -14,4 +14,8 @@
     <string name="AutoLoopSummaryOn">Η Αυτόματη Επανάληψη ενεργοποιήθηκε</string>
     <string name="AutoLoopSummaryOff">Η Αυτόματη Επανάληψη απενεργοποιήθηκε</string>
     <string name="select_language">Επιλέξτε Γλώσσα</string>
+    <string name="change_text_color">Αλλαγή Χρώματος Γραμμάτων</string>
+    <string name="change_file_name">Αλλαγή Ονόματος Αρχειου</string>
+    <string name="finish">Τέλος</string>
+    <string name="reset">Επαναφορά</string>
 </resources>

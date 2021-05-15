@@ -17,6 +17,7 @@ import java.util.ArrayList;
  * Adapter που προτιθεται στο gridView. Προσθετει τα CustomItems.
  */
 public class CustomArrayAdapter extends ArrayAdapter<CustomItem> {
+    private View view;
     public CustomArrayAdapter(@NonNull Context context, int resource, @NonNull ArrayList<CustomItem> customItems) {
         super(context, resource, customItems);
     }
@@ -24,18 +25,18 @@ public class CustomArrayAdapter extends ArrayAdapter<CustomItem> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        View listItemView=convertView;
-        if (listItemView == null){
-            listItemView= LayoutInflater.from(getContext()).inflate(R.layout.item_layout,parent,false);
+        view=convertView;
+        if (view == null){
+            view= LayoutInflater.from(getContext()).inflate(R.layout.item_layout,parent,false);
         }
 
         CustomItem currentItem= getItem(position);
-        TextView desc=listItemView.findViewById(R.id.desc);
+        TextView desc=view.findViewById(R.id.desc);
         desc.setText(currentItem.getDesc());
-        ImageView imageView=listItemView.findViewById(R.id.soundOnImageView);
+        ImageView imageView=view.findViewById(R.id.soundOnImageView);
         imageView.setImageResource(R.drawable.sound_on_image);
 
-        return listItemView;
+        return view;
 
     }
 
