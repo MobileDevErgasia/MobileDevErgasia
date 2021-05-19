@@ -328,7 +328,6 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
             case "el": setLocale(this,"el"); break;
             case "en": setLocale(this,"en"); break;
         }
-
     }
 
     /**
