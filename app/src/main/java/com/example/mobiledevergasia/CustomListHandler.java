@@ -101,7 +101,7 @@ public class CustomListHandler  {
                             int color=item.getBackgroundColor();
                             tempView.setBackgroundColor(color);
                         }else{
-                            // tempView.setBackground(defaultBackground);
+                             tempView.setBackground(defaultBackground);
                         }
                         if(item.isTextColorEdited()){
                             System.out.println("~~~\n" + item.getDesc() );

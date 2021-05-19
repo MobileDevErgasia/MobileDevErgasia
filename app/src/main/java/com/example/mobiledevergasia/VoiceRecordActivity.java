@@ -5,17 +5,23 @@ import androidx.annotation.NonNull;
 import androidx.annotation.StyleableRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Parcelable;
+import android.os.StatFs;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.view.View;
@@ -54,13 +60,17 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
         myToolbar=findViewById(R.id.myToolbar);
         setSupportActionBar(myToolbar);
 
+        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.RECORD_AUDIO},PackageManager.PERMISSION_GRANTED);
+
+
+        chronometer=findViewById(R.id.simpleChronometer);
+
 
         //αρικοποιηση
         recordButton =findViewById(R.id.recordButton);
         stopPlayingButton=findViewById(R.id.stopPlayingButton);
         settingsButton=findViewById(R.id.settingsButton);
 
-        chronometer=findViewById(R.id.simpleChronometer);
 
         recorder=new Recorder();
 
@@ -86,17 +96,16 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
             }
         });
 
-        chronometer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
-            @Override
-            public void onChronometerTick(Chronometer chronometer) {
+       chronometer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
+           @Override
+           public void onChronometerTick(Chronometer chronometer) {
+               if (chronometer.getText().toString().endsWith(recordingDurationText)){//το endswith("15") σημαινει
+                   stopClock();                                     //πχ οταν το χρονομετρο γραψει "00:15" θα σταματησει η ηχογραφηση
+                   stopRecording();
+               }
 
-                if (chronometer.getText().toString().endsWith(recordingDurationText)){//το endswith("15") σημαινει
-                    stopClock();                                     //πχ οταν το χρονομετρο γραψει "00:15" θα σταματησει η ηχογραφηση
-                    stopRecording();
-                }
-
-            }
-        });
+           }
+       });
 
         folder=new File(getExternalFilesDir(null) + "/MyRecording/");
         if (!folder.exists()){
@@ -142,10 +151,8 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
     private void buttonClick(){
         if (!recorder.isRecording()){
             customListHandler.stop();
-            startClock();
             startRecording();
         }else{
-            stopClock();
             stopRecording();
         }
 
@@ -182,6 +189,13 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
      * Χρησιμοποιειται η startRecording(File temporaryFile) του Recorder
      */
     private void startRecording(){
+        if (ContextCompat.checkSelfPermission(this,Manifest.permission.RECORD_AUDIO)!=0){
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.RECORD_AUDIO},0);
+            return;
+        }
+
+
+        startClock();
         customListHandler.stop();
         recordButton.setImageResource(R.drawable.stop_recording_image);
 
@@ -202,6 +216,8 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
      * Χρησιμοποιειται η stopRecording() του Recorder
      */
     private void stopRecording(){
+        stopClock();
+
         recordButton.setImageResource(R.drawable.start_recording_image);
         Toast.makeText(VoiceRecordActivity.this, R.string.stopped_recording , Toast.LENGTH_SHORT).show();
 
@@ -286,8 +302,10 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
      * την γλωσσα και την αυτοματη επαναληψη.
      */
     private void loadSettings(){
+
         SharedPreferences sharedPreferences= PreferenceManager.getDefaultSharedPreferences(this);
         String tempKey=sharedPreferences.getString("maxRecordDuration","10");
+        recordingDurationText=tempKey;
         switch(tempKey){
             case "1" :
                 recordingDurationText="05";

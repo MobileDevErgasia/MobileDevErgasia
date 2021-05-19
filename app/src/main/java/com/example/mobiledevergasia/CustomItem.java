@@ -28,10 +28,9 @@ import java.io.IOException;
 public class CustomItem implements Parcelable {
     private String path,desc;
     private boolean playing,isChecked,toAutoLoop,backgroundColorEdited,textColorEdited;
-
     private customItemListener listener;
 
-    private int red,green,blue,textColor;
+    private int red,green,blue,textColor,backGroundColor;
     private View myView;
     public MediaPlayer mediaPlayer;
 
@@ -63,6 +62,7 @@ public class CustomItem implements Parcelable {
         green = in.readInt();
         blue = in.readInt();
         textColor = in.readInt();
+        backGroundColor=in.readInt();
     }
 
     public static final Creator<CustomItem> CREATOR = new Creator<CustomItem>() {
@@ -110,6 +110,8 @@ public class CustomItem implements Parcelable {
         this.red=red;
         this.green=green;
         this.blue=blue;
+        backGroundColor=Color.rgb(red,green,blue);
+
         backgroundColorEdited=true;
     }
 
@@ -140,6 +142,7 @@ public class CustomItem implements Parcelable {
 
     public void reset(){
         backgroundColorEdited=false;
+        backGroundColor=0;
         textColorEdited=false;
         textColor=Color.WHITE;
     }
@@ -175,7 +178,8 @@ public class CustomItem implements Parcelable {
      * @return επιστρεφει το χρωμα του background
      */
     public int getBackgroundColor(){
-        return Color.rgb(red,green,blue);
+
+        return backGroundColor;
     }
 
     /**
@@ -326,6 +330,7 @@ public class CustomItem implements Parcelable {
         dest.writeInt(green);
         dest.writeInt(blue);
         dest.writeInt(textColor);
+        dest.writeInt(backGroundColor);
     }
 
 

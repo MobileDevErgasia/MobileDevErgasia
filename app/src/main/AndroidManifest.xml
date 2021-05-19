@@ -3,8 +3,6 @@
     package="com.example.mobiledevergasia">
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -13,15 +11,24 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MobileDevErgasia">
-        <activity android:name=".CustomizeItemActivity" />
-        <activity android:name=".VoiceRecordActivity">
+        <activity
+            android:name=".CustomizeItemActivity"
+            android:screenOrientation="portrait"
+            android:resizeableActivity="false"/>
+        <activity
+            android:name=".VoiceRecordActivity"
+            android:screenOrientation="portrait"
+            android:resizeableActivity="false">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Settings" />
+        <activity
+            android:name=".Settings"
+            android:screenOrientation="portrait"
+            android:resizeableActivity="false"/>
     </application>
 
 </manifest>

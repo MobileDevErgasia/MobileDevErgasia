@@ -10,7 +10,7 @@
         android:summaryOff="@string/AutoLoopSummaryOff"/>
 
     <ListPreference
-        android:defaultValue="false"
+        android:defaultValue="05"
         android:title="@string/SettingsDuration"
         android:negativeButtonText="@string/cancel"
         android:key="maxRecordDuration"

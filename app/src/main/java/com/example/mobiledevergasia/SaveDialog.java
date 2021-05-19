@@ -53,6 +53,7 @@ public class SaveDialog extends AppCompatDialogFragment {
         fileNameTextView.setText(R.string.defaultName);
 
         AlertDialog saveDialog = builder.create();
+        saveDialog.setCanceledOnTouchOutside(false);
 
         saveDialog.getWindow().setGravity(Gravity.BOTTOM);
         return saveDialog;
@@ -95,6 +96,12 @@ public class SaveDialog extends AppCompatDialogFragment {
         }
     }
 
+    @Override
+    public void onCancel(@NonNull DialogInterface dialog) {
+        listener.cancelled();
+        super.onCancel(dialog);
+    }
+
     /**
      * Γινεται override της onResume για να γινει override η λειτουργια του
      * button_positive
@@ -114,6 +121,8 @@ public class SaveDialog extends AppCompatDialogFragment {
             }
         });
     }
+
+
 
     /**
      * αρχικοποιηση του listener
