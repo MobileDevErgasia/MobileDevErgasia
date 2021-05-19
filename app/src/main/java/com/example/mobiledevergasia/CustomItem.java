@@ -25,7 +25,7 @@ import java.io.IOException;
  * myView : το View που αντιστοιχει στο αντικειμενο
  * mediaPlayer : MediaPLayer μεταβλητη χρησιμοποιεται για την αναπαραγωγη της ηχογραφησης που αντιστοιχει στο αντικειμενο
  */
-public class CustomItem  {
+public class CustomItem implements Parcelable {
     private String path,desc;
     private boolean playing,isChecked,toAutoLoop,backgroundColorEdited,textColorEdited;
 
@@ -51,17 +51,61 @@ public class CustomItem  {
         textColor=Color.WHITE;
     }
 
+    protected CustomItem(Parcel in) {
+        path = in.readString();
+        desc = in.readString();
+        playing = in.readByte() != 0;
+        isChecked = in.readByte() != 0;
+        toAutoLoop = in.readByte() != 0;
+        backgroundColorEdited = in.readByte() != 0;
+        textColorEdited = in.readByte() != 0;
+        red = in.readInt();
+        green = in.readInt();
+        blue = in.readInt();
+        textColor = in.readInt();
+    }
+
+    public static final Creator<CustomItem> CREATOR = new Creator<CustomItem>() {
+        @Override
+        public CustomItem createFromParcel(Parcel in) {
+            return new CustomItem(in);
+        }
+
+        @Override
+        public CustomItem[] newArray(int size) {
+            return new CustomItem[size];
+        }
+    };
+
+    /**
+     * αλλαζει  την τιμη του path
+     * @param s το νεο path
+     */
     public void setPath(String s){path=s;}
 
+    /**
+     * αλλαζει την τιμη του desc
+     * @param s το νεο desc
+     */
     public void setDesc(String s){
         desc=s;
     }
 
+    /**
+     *
+     * @param color το επιθυμητο χρωμα
+     */
     public void setTextColor(int color){
         textColor=color;
         textColorEdited=true;
     }
 
+    /**
+     *
+     * @param red
+     * @param green
+     * @param blue
+     */
     public void setBackgroundColor(int red, int green, int blue){
         this.red=red;
         this.green=green;
@@ -98,7 +142,10 @@ public class CustomItem  {
         backgroundColorEdited=false;
         textColorEdited=false;
         textColor=Color.WHITE;
+    }
 
+    public CustomItem getItem(){
+        return this;
     }
 
     /**
@@ -117,21 +164,61 @@ public class CustomItem  {
         return path;
     }
 
+    /**
+     *
+     * @return επιστρεφει το χρωμα του κειμενου
+     */
     public int getTextColor(){return  textColor;}
 
+    /**
+     *
+     * @return επιστρεφει το χρωμα του background
+     */
     public int getBackgroundColor(){
         return Color.rgb(red,green,blue);
     }
 
+    /**
+     *
+     * @return την τιμη της red μεταβλητης
+     */
+    public int getRed() {
+        return red;
+    }
+
+    /**
+     *
+     * @return την τιμη της green μεταβλητης
+     */
+    public int getGreen() {
+        return green;
+    }
+
+    /**
+     *
+     * @return την τιμη της blue μεταβλητης
+     */
+    public int getBlue() {
+        return blue;
+    }
+
+    /**
+     *
+     * @return True αν το background χρωμα εχει αλλαχθει, False αν οχι
+     */
     public Boolean isBackgroundColorEdited(){
         return backgroundColorEdited;
     }
 
+    /**
+     *
+     * @return True αν το χρωμα κειμενου εχει αλλαχθει, False αν οχι
+     */
     public Boolean isTextColorEdited(){return textColorEdited;}
 
     /**
      *
-     * @return Επιστρεφε True αν γινεται αν αναπαραγη του αντικειμενου, False αν οχι
+     * @return Επιστρεφει True αν γινεται αν αναπαραγη του αντικειμενου, False αν οχι
      */
     public Boolean isPlaying(){ return playing;}
 
@@ -185,7 +272,6 @@ public class CustomItem  {
         }catch (IOException e){
             e.printStackTrace();
         }
-
     }
 
     /**
@@ -220,6 +306,26 @@ public class CustomItem  {
                 ", myView=" + myView +
                 ", mediaPlayer=" + mediaPlayer +
                 '}';
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(path);
+        dest.writeString(desc);
+        dest.writeByte((byte) (playing ? 1 : 0));
+        dest.writeByte((byte) (isChecked ? 1 : 0));
+        dest.writeByte((byte) (toAutoLoop ? 1 : 0));
+        dest.writeByte((byte) (backgroundColorEdited ? 1 : 0));
+        dest.writeByte((byte) (textColorEdited ? 1 : 0));
+        dest.writeInt(red);
+        dest.writeInt(green);
+        dest.writeInt(blue);
+        dest.writeInt(textColor);
     }
 
 

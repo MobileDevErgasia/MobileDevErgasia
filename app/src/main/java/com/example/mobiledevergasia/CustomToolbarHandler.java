@@ -63,7 +63,7 @@ public class CustomToolbarHandler {
         deleteImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                delete();
+                hide();
                 listener.onDeleteImagePressed();
             }
         });
@@ -127,7 +127,7 @@ public class CustomToolbarHandler {
     /**
      * Αυξηση του counter και προσαρμογη του μηνυματος
      */
-    private void increase(){
+    public void increase(){
         counter++;
         String temp="" + counter;
         counterTextView.setText(temp);
@@ -136,32 +136,10 @@ public class CustomToolbarHandler {
     /**
      * Μειωση του counter και προσαρμογη του μηνυματος
      */
-    private void decrease(){
+    public void decrease(){
         counter--;
         String temp="" + counter;
         counterTextView.setText(temp);
-    }
-
-    /**
-     * Προσθετονται αντικειμενα προς διαγραφη,καλειται καθε
-     * φορα που επιλεγεται ενα αντικειμενο του gridView.
-     * Στην συνεχεια καλειται η increase.
-     * @param item Το αντικειμενο το οποιο επιλεγχθηκε για διαγραφη
-     */
-    public void addFilesToDelete(CustomItem item){
-        filesToDelete.add(item);
-        increase();
-    }
-
-    /**
-     * Αφαιρουνται αντικειμενα που δεν ειναι για διαγραφη,
-     * καλειται καθε φορα που αποεπιλεγεται ενα αντικειμενο
-     * του gridView. Στην συνεχεια καλειται η decrease.
-     * @param item
-     */
-    public void removeFileToDelete(CustomItem item){
-        filesToDelete.remove(item);
-        decrease();
     }
 
     /**
@@ -173,19 +151,7 @@ public class CustomToolbarHandler {
         filesToDelete.clear();
     }
 
-    /**
-     * Διαγραφη των επιλεγμενων αντικειμενων.
-     * Στην συνεχεια καλειται η hide().
-     * Καλειται οταν πατηθει η deleteImageView.
-     */
-    private void delete() {
-        for (CustomItem item : filesToDelete) {
-            new File(item.getPath()).delete();
-        }
-        hide();
-
-    }
-
+    //TODO
     public int getCounter(){
         return counter;
     }

@@ -13,16 +13,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MobileDevErgasia">
-        <activity android:name=".CustomizeItemActivity"></activity>
-        <activity android:name=".VoiceRecordActivity" />
-        <activity android:name=".Settings" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".CustomizeItemActivity" />
+        <activity android:name=".VoiceRecordActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".Settings" />
     </application>
 
 </manifest>

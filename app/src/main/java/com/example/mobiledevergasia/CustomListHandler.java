@@ -4,16 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
-
-import androidx.core.content.ContextCompat;
-
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,6 +28,7 @@ import java.util.ArrayList;
  * itemCheckedColor : πρασινο χρωμα που δηλωνει οτι το στοιχειο εχει επιλεγθει
  * defaultBackground : Το defaultBackground χρωμα των στοιχειων.
  * counter : int το οποιο μετραει τον αριθμο επιλεγμενων αντικειμενων
+ * itemsPlaying : int το οποιο μετραει τον αριθμο των αντικειμενων που κανουν αναπαραγωγη
  * toCheck : boolean που ενεργοποιει την επιλογη πολλαπλων αντικειμενων
  *
  *
@@ -42,7 +38,7 @@ public class CustomListHandler  {
     private CustomListListener customListListener;
     private final GridView myGridView;
 
-    private  ArrayList<CustomItem> myList;
+    private static ArrayList<CustomItem> myList,filesToDelete;
     private final CustomArrayAdapter arrayAdapter;
 
     private final int itemCheckedColor;
@@ -61,14 +57,14 @@ public class CustomListHandler  {
      * @param context
      */
     public CustomListHandler(View view, Context context){
-        myGridView =view.findViewById(R.id.gridView);
         this.context=context;
+        myGridView =view.findViewById(R.id.gridView);
 
         itemCheckedColor=context.getResources().getColor(R.color.green_200);
         defaultBackground =context.getResources().getDrawable(R.drawable.item_gradient);
 
         initCustomToolbarHandler(view);
-        initMyList(view);
+        initArrayLists(view);
 
         arrayAdapter = new CustomArrayAdapter(context,0,myList);
         myGridView.setAdapter(arrayAdapter);
@@ -84,31 +80,42 @@ public class CustomListHandler  {
         myGridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                CustomItem item = (CustomItem)parent.getItemAtPosition(position);
-                longClick(view,item);
-                return true;
+                if(!toCheck){
+                    CustomItem item = (CustomItem)parent.getItemAtPosition(position);
+                    longClick(view,item);
+                    return true;
+                }
+                return false;
+
             }
         });
 
         view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                for (int i=0;i<myList.size();i++){
-                    CustomItem item=myList.get(i);
-                    View tempView=myGridView.getChildAt(i);
-                    if (item.isBackgroundColorEdited()){
-                        int color=item.getBackgroundColor();
-                        System.out.println(color + " ! " + "    " + Color.rgb(255,0,0));
-                        tempView.setBackgroundColor(color);
-                        TextView textView=tempView.findViewById(R.id.desc);
-                        textView.setTextColor(item.getTextColor());
+                if(!toCheck){
+                    for (int i=0;i<myList.size();i++){
+                        CustomItem item=myList.get(i);
+                        View tempView=myGridView.getChildAt(i);
+                        if (item.isBackgroundColorEdited()){
+                            int color=item.getBackgroundColor();
+                            tempView.setBackgroundColor(color);
+                        }else{
+                            // tempView.setBackground(defaultBackground);
+                        }
+                        if(item.isTextColorEdited()){
+                            System.out.println("~~~\n" + item.getDesc() );
+                            TextView textView=tempView.findViewById(R.id.desc);
+                            textView.setTextColor(item.getTextColor());
+                        }else{
+                            TextView textView=tempView.findViewById(R.id.desc);
+                            textView.setTextColor(Color.WHITE);
+                        }
+                        item.setView(tempView);
                     }
-                    item.setView(tempView);
-
                 }
             }
         });
-
     }
 
     /**
@@ -124,14 +131,10 @@ public class CustomListHandler  {
             }
 
             @Override
-            public void onDeleteImagePressed() {
-                update();
-            }
+            public void onDeleteImagePressed() { delete(); }
 
             @Override
-            public void onEditImagePressed() { edit();
-
-            }
+            public void onEditImagePressed() { startCustomizeItemActivity(); }
         };
         customToolbarHandler=new CustomToolbarHandler(view);
         customToolbarHandler.setListener(customToolbarListener);
@@ -143,7 +146,7 @@ public class CustomListHandler  {
      * @param view Το view στο οποιο βρισκεται το toolbar,δηλαδη το voice_record_activity
      *             χρησιμοποιεται στην αρχικοποιση των imageView,textView και appBarLayout.
      */
-    private void initMyList(View view){
+    private void initArrayLists(View view){
         myList=new ArrayList<>();
 
         File directory = new File(view.getContext().getExternalFilesDir(null) + "/MyRecording/"+"");
@@ -162,6 +165,8 @@ public class CustomListHandler  {
                 }
             });
         }
+
+        filesToDelete=new ArrayList<>();
     }
 
     /**
@@ -219,7 +224,7 @@ public class CustomListHandler  {
                 customToolbarHandler.showEditImage();
             }
         }
-
+        arrayAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -252,14 +257,13 @@ public class CustomListHandler  {
         counter--; //μειωνονται τα επιλεγμενα αντικειμενα
         if (item.isBackgroundColorEdited()){
             int color=item.getBackgroundColor();
-            System.out.println(" !!!!!   " + color);
             view.setBackgroundColor(color);
-
         }else{
-            view.setBackground(defaultBackground); //επιστρεφει το χρωμα στο default
+           view.setBackground(defaultBackground); //επιστρεφει το χρωμα στο default
         }
         item.uncheck(); // αποεπιλεγει το αντικειμενο
-        customToolbarHandler.removeFileToDelete(item);
+        customToolbarHandler.decrease();
+        filesToDelete.remove(item);
     }
 
     /**
@@ -271,8 +275,8 @@ public class CustomListHandler  {
         counter++; //αυξανονται τα επιλεγμενα αντικειμενα
         view.setBackgroundColor(itemCheckedColor); //γινεται πρασσινο το αντικειμενο για να δειξει οτι εχει επιλεγθει
         item.check(); //επιλεγεται το αντικειμενο
-        customToolbarHandler.addFilesToDelete(item);
-
+        customToolbarHandler.increase();
+        filesToDelete.add(item);
     }
 
     /**
@@ -295,6 +299,7 @@ public class CustomListHandler  {
         arrayAdapter.notifyDataSetChanged();
     }
 
+    //TODO
     public void replace(int i,CustomItem item){
         item.setListener(new CustomItem.customItemListener() {
             @Override
@@ -304,6 +309,7 @@ public class CustomListHandler  {
             }
         });
         myList.set(i,item);
+
         arrayAdapter.notifyDataSetChanged();
     }
 
@@ -316,20 +322,26 @@ public class CustomListHandler  {
             CustomItem item = myList.get(i);
             if (item.isPlaying()) {
                 item.stop();
-                myGridView.getChildAt(i).findViewById(R.id.soundOnImageView).setVisibility(View.GONE);
+               // myGridView.getChildAt(i).findViewById(R.id.soundOnImageView).setVisibility(View.GONE);
             }
+            customListListener.onStopPlaying();
         }
+
     }
 
     /**
      * Καλειται απτην onDeletePressed του CustomToolbarListener
-     * Διαγραφει τα επιλεγμενα αντικειμενα απτην myList και το myGridView
+     * Διαγραφει τα επιλεγμενα αντικειμενα απτην myList και το myGridView και τα αντιστοιχα αρχεια τους
      * Αποεπιλεγει ολα τα αντικειμα του myGridView επειδη με την διαγραφη τους απτην
      * λιστα συχνα καποια επαιρναν την θεση καποια διαγραμενου αρχειου και εμεναν επιλεγμενα
      * Απενεργοποιει την επιλογη πολλαπλων αντικειμενων και κανει reset τον counter
      */
-    private void update(){
+    private void delete(){
         int i=0;
+
+        for (CustomItem item : filesToDelete) {
+            new File(item.getPath()).delete();
+        }
 
         while(i<myList.size()){
             if (myList.get(i).isChecked()){
@@ -363,8 +375,8 @@ public class CustomListHandler  {
         counter=0;
     }
 
-    private void edit(){
-        Intent intent= new Intent(context,CustomizeItemActivity.class);
+    //TODO
+    private void startCustomizeItemActivity(){
         CustomItem myItem=null;
         int index=0;
         for (int i = 0; i < myList.size(); i++) {
@@ -375,11 +387,9 @@ public class CustomListHandler  {
                 break;
             }
         }
-     //   View tempView= myItem.getView();
-     //   intent.putExtra("view",(Parcelable) tempView);
+        Intent intent=new Intent(context.getApplicationContext(),CustomizeItemActivity.class);
+        intent.putExtra("item",myItem);
         intent.putExtra("index",index);
-        intent.putExtra("name", myItem.getDesc());
-        intent.putExtra("path", myItem.getPath());
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
@@ -410,6 +420,7 @@ public class CustomListHandler  {
         this.customListListener =customListListener;
     }
 
+    //TODO
     public void setAutoLooping(Boolean b){
         for (CustomItem item : myList){
             item.setToAutoLoop(b);

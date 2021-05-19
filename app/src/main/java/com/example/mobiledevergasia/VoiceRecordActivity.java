@@ -1,6 +1,8 @@
 package com.example.mobiledevergasia;
 
 
+import androidx.annotation.NonNull;
+import androidx.annotation.StyleableRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -13,6 +15,7 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.view.View;
@@ -35,7 +38,7 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
     private ImageButton recordButton,stopPlayingButton,settingsButton;
     private File folder,temporaryFile,finalFile;
 
-    private CustomListHandler customListHandler;
+    private static  CustomListHandler customListHandler;
     private Recorder recorder;
 
     private String filename;
@@ -50,6 +53,7 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
         setContentView(R.layout.activity_voice_record);
         myToolbar=findViewById(R.id.myToolbar);
         setSupportActionBar(myToolbar);
+
 
         //αρικοποιηση
         recordButton =findViewById(R.id.recordButton);
@@ -111,11 +115,9 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
             public void onStopPlaying() {
                 if(!customListHandler.areItemsPlaying()){
                     hideStopButton();
-
                 }
             }
         });
-
     }
 
     /**
@@ -139,6 +141,7 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
      */
     private void buttonClick(){
         if (!recorder.isRecording()){
+            customListHandler.stop();
             startClock();
             startRecording();
         }else{
@@ -342,40 +345,44 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
         }
         super.onStop();
     }
+    @Override
+    protected void onRestart() {
+        customListHandler.cancel();
+        super.onRestart();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        CustomItem item=intent.getParcelableExtra("customItem");
+        int index=intent.getIntExtra("index",0);
+
+        if(intent.hasExtra("finished")){
+            customizeItem(item,index);
+        }else if(intent.hasExtra("cancelled")){
+            //DoNothing
+        }
+        else if (intent.hasExtra("Reset")){
+            resetItem(item,index);
+        }
+        super.onNewIntent(intent);
+    }
 
     /**
      * Καλει την loadSettings
      */
     @Override
     public void onResume(){
-        super.onResume();
         loadSettings();
+        super.onResume();
+    }
 
-        Intent intent=getIntent();
-        if(intent.hasExtra("textColor")){
-            String name=intent.getStringExtra("name");
-            String path=intent.getStringExtra("path");
-            int index=intent.getIntExtra("index",0);
-            int red=intent.getIntExtra("red",0);
-            int green=intent.getIntExtra("green",0);
-            int blue=intent.getIntExtra("blue",0);
-            int textColor=intent.getIntExtra("textColor", Color.WHITE);
-            CustomItem item=new CustomItem(path,name);
-            item.setBackgroundColor(red,green,blue);
-            item.setTextColor(textColor);
+    private void resetItem(CustomItem item,int index){
+        item.reset();
+        customListHandler.replace(index,item);
+    }
 
-
-
-            //TODO change path
-            customListHandler.replace(index,item);
-        }else if (intent.hasExtra("Reset")){
-            int index=intent.getIntExtra("index",0);
-            String name=intent.getStringExtra("name");
-            String path=intent.getStringExtra("path");
-            CustomItem item=new CustomItem(path,name);
-            customListHandler.replace(index,item);
-        }
-
+    private void customizeItem(CustomItem item,int index){
+        customListHandler.replace(index,item);
     }
 
     /**
