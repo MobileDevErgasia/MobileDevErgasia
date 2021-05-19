@@ -44,7 +44,7 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
     private ImageButton recordButton,stopPlayingButton,settingsButton;
     private File folder,temporaryFile,finalFile;
 
-    private static  CustomListHandler customListHandler;
+    private CustomListHandler customListHandler;
     private Recorder recorder;
 
     private String filename;
@@ -193,8 +193,6 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
             ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.RECORD_AUDIO},0);
             return;
         }
-
-
         startClock();
         customListHandler.stop();
         recordButton.setImageResource(R.drawable.stop_recording_image);
