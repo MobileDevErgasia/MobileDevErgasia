@@ -366,6 +366,10 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
         super.onRestart();
     }
 
+    /**
+     *
+     * @param intent
+     */
     @Override
     protected void onNewIntent(Intent intent) {
         CustomItem item=intent.getParcelableExtra("customItem");
