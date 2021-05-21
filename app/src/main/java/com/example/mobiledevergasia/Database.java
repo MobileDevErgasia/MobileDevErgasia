@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public class Database extends SQLiteOpenHelper {
 
     public Database(Context context){
-        super(context,"Userdata.db",null,1);
+        super(context,"Entries.db",null,1);
     }
 
     @Override
@@ -51,6 +51,28 @@ public class Database extends SQLiteOpenHelper {
         }
     }
     /**
+     Αλλάζει το όνομα ενός στοιχείου στη βάση
+
+     **/
+    public Boolean updatename(String existingname,String newname){
+        SQLiteDatabase DB= this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("name",newname);
+        Cursor cursor=DB.rawQuery("Select * from Entries where name = ?",new String[]{existingname});
+        if (cursor.getCount()>0) {
+            long result = DB.update("Entries", contentValues, "name=?", new String[]{existingname});
+            cursor.close();
+            if (result == -1) {
+                return false;
+            } else {
+                return true;
+            }
+        }else {
+            return false;
+        }
+
+    }
+    /**
      Αποθηκεύει το νέο χρώμα του background στη βάση
 
      **/
@@ -63,6 +85,7 @@ public class Database extends SQLiteOpenHelper {
         Cursor cursor=DB.rawQuery("Select * from Entries where name = ?",new String[]{name});
         if (cursor.getCount()>0) {
             long result = DB.update("Entries", contentValues, "name=?", new String[]{name});
+            cursor.close();
             if (result == -1) {
                 return false;
             } else {
@@ -84,6 +107,7 @@ public class Database extends SQLiteOpenHelper {
         Cursor cursor=DB.rawQuery("Select * from Entries where name = ?",new String[]{name});
         if (cursor.getCount()>0) {
             long result = DB.update("Entries", contentValues, "name=?", new String[]{name});
+            cursor.close();
             if (result == -1) {
                 return false;
             } else {
@@ -100,9 +124,10 @@ public class Database extends SQLiteOpenHelper {
      **/
     public Boolean deleteEntry(String name) {
         SQLiteDatabase DB= this.getWritableDatabase();
-        Cursor cursor=DB.rawQuery("Select * from Userdetails where name = ?",new String[]{name});
+        Cursor cursor=DB.rawQuery("Select * from Entries where name = ?",new String[]{name});
         if (cursor.getCount()>0) {
             long result = DB.delete("Entries", "name=?", new String[]{name});
+            cursor.close();
             if (result == -1) {
                 return false;
             } else {
