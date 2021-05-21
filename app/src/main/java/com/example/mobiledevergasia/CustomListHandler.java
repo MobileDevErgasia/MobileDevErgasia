@@ -1,14 +1,18 @@
 package com.example.mobiledevergasia;
 
+import android.app.AppComponentFactory;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,10 +37,14 @@ import java.util.ArrayList;
  *
  *
  */
-public class CustomListHandler  {
+public class CustomListHandler extends AppCompatActivity {
     private  CustomToolbarHandler customToolbarHandler;
     private CustomListListener customListListener;
     private Database myDatabase;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
     private final GridView myGridView;
 
     private static ArrayList<CustomItem> myList,filesToDelete;
