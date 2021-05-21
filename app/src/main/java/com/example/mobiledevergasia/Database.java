@@ -21,7 +21,7 @@ public class Database extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase DB) {
-        DB.execSQL("create Table Entries(name TEXT primary key,background NUMBER,textcolor NUMBER,path TEXT not null)");
+        DB.execSQL("create Table Entries(name TEXT primary key,background NUMBER,textcolor NUMBER,backgroundcheck NUMBER,path TEXT not null)");
 
     }
 
@@ -42,6 +42,7 @@ public class Database extends SQLiteOpenHelper {
         contentValues.put("background", item.getBackgroundColor());
         contentValues.put("textcolor",item.getTextColor());
         contentValues.put("path", item.getPath());
+        contentValues.put("backgroundcheck",0);
         long result = DB.insert("Entries", null, contentValues);
         if (result == -1) {
             return false;
@@ -50,7 +51,7 @@ public class Database extends SQLiteOpenHelper {
         }
     }
     /**
-    Αποθηκεύει το νέο χρώμα του background στη βάση
+     Αποθηκεύει το νέο χρώμα του background στη βάση
 
      **/
 
@@ -58,6 +59,7 @@ public class Database extends SQLiteOpenHelper {
         SQLiteDatabase DB= this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("background",color);
+        contentValues.put("backgroundcheck",1);
         Cursor cursor=DB.rawQuery("Select * from Entries where name = ?",new String[]{name});
         if (cursor.getCount()>0) {
             long result = DB.update("Entries", contentValues, "name=?", new String[]{name});
@@ -93,7 +95,7 @@ public class Database extends SQLiteOpenHelper {
     }
 
     /**
-    Διαγράφη ένα αντικείμενο από τη βάση
+     Διαγράφη ένα αντικείμενο από τη βάση
 
      **/
     public Boolean deleteentry(String name) {
@@ -120,13 +122,16 @@ public class Database extends SQLiteOpenHelper {
         SQLiteDatabase DB= this.getWritableDatabase();
         Cursor cursor =DB.rawQuery("Select * from Entries",null);
         while ((cursor.moveToNext())) {
-            CustomItem item = new CustomItem(cursor.getString(3), cursor.getString(0));
+            CustomItem item = new CustomItem(cursor.getString(4), cursor.getString(0));
             item.setTextColor(cursor.getInt(2));
-            item.setBackgroundColor(Color.red(cursor.getInt(1)),Color.green(cursor.getInt(1)),Color.blue(cursor.getInt(1)));
+            if(cursor.getInt(3)==1) {
+                item.setBackgroundColor(Color.red(cursor.getInt(1)), Color.green(cursor.getInt(1)), Color.blue(cursor.getInt(1)));
+            }
             items.add(item);
         }
         cursor.close();
         return items;
     }
 }
+
 
