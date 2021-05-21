@@ -30,6 +30,7 @@ public class Database extends SQLiteOpenHelper {
         DB.execSQL("drop Table if exists Entries");
 
     }
+
     /**
      Προσθέτει ένα νέο αντικείμενο στη βάση
 
@@ -53,8 +54,7 @@ public class Database extends SQLiteOpenHelper {
 
      **/
 
-    public Boolean updatebackground(String name, int color)
-    {
+    public Boolean updatebackground(String name, int color) {
         SQLiteDatabase DB= this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("background",color);
@@ -70,12 +70,12 @@ public class Database extends SQLiteOpenHelper {
             return false;
         }
     }
+
     /**
      Αποθηκεύει το νέο χρώμα του κειμένου στη βάση
 
      **/
-    public Boolean updatetextcolor(String name, int color)
-    {
+    public Boolean updatetextcolor(String name, int color) {
         SQLiteDatabase DB= this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("textcolor",color);
@@ -91,13 +91,12 @@ public class Database extends SQLiteOpenHelper {
             return false;
         }
     }
+
     /**
     Διαγράφη ένα αντικείμενο από τη βάση
 
      **/
-
-    public Boolean deleteentry(String name)
-    {
+    public Boolean deleteentry(String name) {
         SQLiteDatabase DB= this.getWritableDatabase();
         Cursor cursor=DB.rawQuery("Select * from Userdetails where name = ?",new String[]{name});
         if (cursor.getCount()>0) {
@@ -111,11 +110,12 @@ public class Database extends SQLiteOpenHelper {
             return false;
         }
     }
+
     /**
      Επιστρέφει μία λίστα όλων των αντικειμένων της βάσης
 
      **/
-    public ArrayList getitems(){
+    public ArrayList<CustomItem> getitems(){
         ArrayList <CustomItem> items= new ArrayList<>();
         SQLiteDatabase DB= this.getWritableDatabase();
         Cursor cursor =DB.rawQuery("Select * from Entries",null);

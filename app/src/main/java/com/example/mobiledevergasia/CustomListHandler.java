@@ -36,6 +36,7 @@ import java.util.ArrayList;
 public class CustomListHandler  {
     private  CustomToolbarHandler customToolbarHandler;
     private CustomListListener customListListener;
+    private Database myDatabase;
     private final GridView myGridView;
 
     private static ArrayList<CustomItem> myList,filesToDelete;
@@ -146,17 +147,13 @@ public class CustomListHandler  {
      * @param view Το view στο οποιο βρισκεται το toolbar,δηλαδη το voice_record_activity
      *             χρησιμοποιεται στην αρχικοποιση των imageView,textView και appBarLayout.
      */
-    private void initArrayLists(View view){
-        myList=new ArrayList<>();
+    private void initArrayLists(View view) {
+       myDatabase = new Database(context);
+        myList = new ArrayList<>();
+        myList = myDatabase.getitems();
 
-        File directory = new File(view.getContext().getExternalFilesDir(null) + "/MyRecording/"+"");
-        File[] files = directory.listFiles();
+        for (int i = 0; i < myList.size(); i++) {
 
-        int fileLength=files.length;
-        //βαζει στην λιστα ολα τα αρχεια που υπαρχουν αποθηκευμενα
-        for (int i=0;i<fileLength;i++){
-
-            myList.add(new CustomItem(files[i].toString(),"" + i)); //Το i θα αλλαξει οταν βαλουμε την βαση
             myList.get(i).setListener(new CustomItem.customItemListener() {
                 @Override
                 public void onItemFinished() {
@@ -164,9 +161,8 @@ public class CustomListHandler  {
                     customListListener.onStopPlaying();
                 }
             });
+            filesToDelete = new ArrayList<>();
         }
-
-        filesToDelete=new ArrayList<>();
     }
 
     /**
@@ -294,8 +290,10 @@ public class CustomListHandler  {
                 customListListener.onStopPlaying();
             }
         };
-        myList.add(new CustomItem(path,desc));
-        myList.get(myList.size() - 1 ).setListener(customItemListener);
+        CustomItem customItem=new CustomItem(path,desc);
+        customItem.setListener(customItemListener);
+        myDatabase.newentry(customItem);
+        myList.add(customItem);
         arrayAdapter.notifyDataSetChanged();
     }
 
@@ -440,3 +438,25 @@ public class CustomListHandler  {
 
 
 }
+
+
+/*
+ myList=new ArrayList<>();
+
+        File directory = new File(view.getContext().getExternalFilesDir(null) + "/MyRecording/"+"");
+        File[] files = directory.listFiles();
+
+        int fileLength=files.length;
+        //βαζει στην λιστα ολα τα αρχεια που υπαρχουν αποθηκευμενα
+        for (int i=0;i<fileLength;i++){
+
+            myList.add(new CustomItem(files[i].toString(),"" + i)); //Το i θα αλλαξει οταν βαλουμε την βαση
+            myList.get(i).setListener(new CustomItem.customItemListener() {
+                @Override
+                public void onItemFinished() {
+                    itemsPlaying--;
+                    customListListener.onStopPlaying();
+                }
+            });
+            filesToDelete=new ArrayList<>();
+ */
