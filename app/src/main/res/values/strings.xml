@@ -7,9 +7,9 @@
     <string name="save_recording">Save Recording</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
-    <string name="items_selected">Item(s) Seleceted</string>
+    <string name="items_selected">Item(s) Selected</string>
     <string name="WrongInputMessage">Can only contain letters and/or numbers!</string>
-    <string name="defaultName" translatable="false">MyRecording</string>
+    <string name="defaultName" translatable="false">MyRec</string>
     <string name="SettingAutoLoop">Auto Loop</string>
     <string name="AutoLoopSummaryOn">Auto Looping is Activated</string>
     <string name="AutoLoopSummaryOff">Auto Looping is Deactivated</string>
@@ -19,6 +19,7 @@
     <string name="change_file_name">Change File Name:</string>
     <string name="finish">Finish</string>
     <string name="reset">Reset</string>
+    <string name="file_exists_toast">This name already exists</string>
     <string-array name="Languages">
         <item>Ελληνικα</item>
         <item>English</item>

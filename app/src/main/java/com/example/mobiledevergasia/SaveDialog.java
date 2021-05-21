@@ -16,6 +16,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+
 /**
  * Custom dialog που χρησιμοποιειται για την ονομασια την ηχογραφησης
  * Κανει override την onAttach και την onResume
@@ -50,7 +55,12 @@ public class SaveDialog extends AppCompatDialogFragment {
                 }); //δημιουργια save button,γινεται override στην συνεχεια
 
         fileNameTextView = customView.findViewById(R.id.fileName);
-        fileNameTextView.setText(R.string.defaultName);
+        SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_H_m", Locale.getDefault());
+        String currentDateandTime = sdf.format(new Date());
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~   " +currentDateandTime);
+        String text=getString(R.string.defaultName) + "_" + currentDateandTime;
+        fileNameTextView.setText(text);
+        System.out.println("!!!!!!!!!!!!!!!!!   " + R.string.defaultName);
 
         AlertDialog saveDialog = builder.create();
         saveDialog.setCanceledOnTouchOutside(false);
@@ -71,8 +81,11 @@ public class SaveDialog extends AppCompatDialogFragment {
         for (int i = 0; i < len; i++) {
             // ελεγχος αν ο χαρακτηρας δεν ειναι γραμμα ή αριθμος
             // αν δεν ειναι τελειωνει ο ελεγχος και επιστρεφει false
-            if ((!Character.isLetterOrDigit(string.charAt(i)))) {
-                return false;
+            char c=string.charAt(i);
+            if ((!Character.isLetterOrDigit(c))) {
+                if (c!='_'){
+                    return false;
+                }
             }
         }
         return true;

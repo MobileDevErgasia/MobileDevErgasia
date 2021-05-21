@@ -14,6 +14,9 @@ import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.File;
+
 //TODO
 public class CustomizeItemActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
 
@@ -21,12 +24,13 @@ public class CustomizeItemActivity extends AppCompatActivity implements SeekBar.
     private TextView preview;
     private EditText nameText;
     private View view;
-    private int red,green,blue,textColor;
-    private int index;
-    private boolean colorChanged,textColorChanged;
-    private CustomItem item;
+    private int red,green,blue,textColor,index;
+    private boolean colorChanged,textColorChanged,nameChanged;
+    private String name,path,previousName;
 
-    private String name,path;
+    private CustomItem item;
+    private File folder;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,10 +54,12 @@ public class CustomizeItemActivity extends AppCompatActivity implements SeekBar.
     }
 
     private void initValues(){
-        name=item.getDesc();
+        previousName=item.getName();
         path=item.getPath();
 
+        folder=new File(getExternalFilesDir(null) + "/MyRecording/");
         textColor=item.getTextColor();
+        nameChanged=false;
         colorChanged=false;
         textColorChanged=false;
     }
@@ -143,6 +149,12 @@ public class CustomizeItemActivity extends AppCompatActivity implements SeekBar.
         finishButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(nameChanged ){
+                    name=nameText.getText().toString();
+                }else{
+                    name=previousName;
+                }
+
                 if (fileNameIsOkay(name)){
                     Intent myIntent=new Intent(getApplicationContext(),VoiceRecordActivity.class);
                     if(colorChanged){
@@ -151,10 +163,20 @@ public class CustomizeItemActivity extends AppCompatActivity implements SeekBar.
                     if(textColorChanged){
                         item.setTextColor(textColor);
                     }
+                    if(!name.equals(previousName)){
+                        File newFile= new File(folder + "/" + name + ".mp3");
+                        if(newFile.exists()){
+                            Toast.makeText(CustomizeItemActivity.this, R.string.file_exists_toast, Toast.LENGTH_SHORT).show();
+                            newFile.delete();
+                            return;
+                        }
+                        myIntent.putExtra("previousName",previousName);
+                    }
+
                     myIntent.putExtra("finished",true);
                     myIntent.putExtra("index",index);
-                    myIntent.putExtra("customItem",(Parcelable) item);
-                    //myIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    myIntent.putExtra("customItem", item);
+
                     myIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 
                     startActivity(myIntent);
@@ -172,7 +194,7 @@ public class CustomizeItemActivity extends AppCompatActivity implements SeekBar.
                 Intent myIntent=new Intent(getApplicationContext(),VoiceRecordActivity.class);
                 myIntent.putExtra("cancelled",true);
                 myIntent.putExtra("index",index);
-                myIntent.putExtra("customItem",(Parcelable) item);
+                myIntent.putExtra("customItem", item);
                 myIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 
                 startActivity(myIntent);
@@ -202,8 +224,8 @@ public class CustomizeItemActivity extends AppCompatActivity implements SeekBar.
         preview=findViewById(R.id.previewText);
         view=findViewById(R.id.preView);
         nameText=findViewById(R.id.nameText);
-        nameText.setText(name);
-        preview.setText(name);
+        nameText.setText(previousName);
+        preview.setText(previousName);
 
         if(item.isTextColorEdited()){
             preview.setTextColor(item.getTextColor());
@@ -229,7 +251,8 @@ public class CustomizeItemActivity extends AppCompatActivity implements SeekBar.
                 String t=nameText.getText().toString();
                 preview.setText(t);
                 name=t;
-                item.setDesc(name);
+                nameChanged=true;
+                item.setName(name);
             }
         });
     }
@@ -271,14 +294,17 @@ public class CustomizeItemActivity extends AppCompatActivity implements SeekBar.
      * @return true οταν δεν περιεχει ειδικους χαρακτηρες, false οταν περιεχει
      */
     private boolean fileNameIsOkay(String string) {
-        if (string == null) // ελεγχει αν το String ειναι null {
+        if (string == null || string.equals("")) // ελεγχει αν το String ειναι null {
             return false;
         int len = string.length();
         for (int i = 0; i < len; i++) {
             // ελεγχος αν ο χαρακτηρας δεν ειναι γραμμα ή αριθμος
             // αν δεν ειναι τελειωνει ο ελεγχος και επιστρεφει false
-            if ((!Character.isLetterOrDigit(string.charAt(i)))) {
-                return false;
+            char c = string.charAt(i);
+            if ((!Character.isLetterOrDigit(c))) {
+                if (c != '(' && c != ')' && c!='_') {
+                    return false;
+                }
             }
         }
         return true;
@@ -286,7 +312,7 @@ public class CustomizeItemActivity extends AppCompatActivity implements SeekBar.
 
     @Override
     protected void onDestroy() {
-        System.out.println("DIAgrafi");
+
         super.onDestroy();
     }
 

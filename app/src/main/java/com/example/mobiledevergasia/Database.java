@@ -38,35 +38,27 @@ public class Database extends SQLiteOpenHelper {
     public Boolean newEntry(CustomItem item) {
         SQLiteDatabase DB = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put("name", item.getDesc());
+        contentValues.put("name", item.getName());
         contentValues.put("background", item.getBackgroundColor());
         contentValues.put("textcolor",item.getTextColor());
         contentValues.put("path", item.getPath());
         contentValues.put("backgroundcheck",0);
         long result = DB.insert("Entries", null, contentValues);
-        if (result == -1) {
-            return false;
-        } else {
-            return true;
-        }
+        return result != -1;
     }
     /**
      Αλλάζει το όνομα ενός στοιχείου στη βάση
 
      **/
-    public Boolean updatename(String existingname,String newname){
+    public Boolean updateName(String oldName,String newName){
         SQLiteDatabase DB= this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put("name",newname);
-        Cursor cursor=DB.rawQuery("Select * from Entries where name = ?",new String[]{existingname});
+        contentValues.put("name",newName);
+        Cursor cursor=DB.rawQuery("Select * from Entries where name = ?",new String[]{oldName});
         if (cursor.getCount()>0) {
-            long result = DB.update("Entries", contentValues, "name=?", new String[]{existingname});
+            long result = DB.update("Entries", contentValues, "name=?", new String[]{oldName});
             cursor.close();
-            if (result == -1) {
-                return false;
-            } else {
-                return true;
-            }
+            return result != -1;
         }else {
             return false;
         }
@@ -86,11 +78,7 @@ public class Database extends SQLiteOpenHelper {
         if (cursor.getCount()>0) {
             long result = DB.update("Entries", contentValues, "name=?", new String[]{name});
             cursor.close();
-            if (result == -1) {
-                return false;
-            } else {
-                return true;
-            }
+            return result != -1;
         }else {
             return false;
         }
@@ -108,11 +96,23 @@ public class Database extends SQLiteOpenHelper {
         if (cursor.getCount()>0) {
             long result = DB.update("Entries", contentValues, "name=?", new String[]{name});
             cursor.close();
-            if (result == -1) {
-                return false;
-            } else {
-                return true;
-            }
+            return result != -1;
+        }else {
+            return false;
+        }
+    }
+
+    public Boolean updatePath(String name,String path) {
+        System.out.println("mpika mpika mpika mpika mpika " + path);
+        SQLiteDatabase DB= this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("path",path);
+        Cursor cursor=DB.rawQuery("Select * from Entries where name = ?",new String[]{name});
+        System.out.println(" cursor    " + cursor.getCount());
+        if (cursor.getCount()>=0) {
+            long result = DB.update("Entries", contentValues, "name=?", new String[]{name});
+            cursor.close();
+            return result != -1;
         }else {
             return false;
         }
@@ -128,36 +128,28 @@ public class Database extends SQLiteOpenHelper {
         if (cursor.getCount()>0) {
             long result = DB.delete("Entries", "name=?", new String[]{name});
             cursor.close();
-            if (result == -1) {
-                return false;
-            } else {
-                return true;
-            }
+            return result != -1;
         }else {
             return false;
         }
     }
+
     /**
      * Κάνει reset τα χρώματα του background και text
      **/
     public Boolean reset(String name){
         SQLiteDatabase DB= this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put("textcolor",Color.rgb(255,255,255));
+        contentValues.put("textcolor",Color.WHITE);
         contentValues.put("backgroundcheck",0);
         Cursor cursor=DB.rawQuery("Select * from Entries where name = ?",new String[]{name});
         if (cursor.getCount()>0) {
             long result = DB.update("Entries", contentValues, "name=?", new String[]{name});
             cursor.close();
-            if (result == -1) {
-                return false;
-            } else {
-                return true;
-            }
+            return result != -1;
         }else {
             return false;
         }
-
     }
 
     /**

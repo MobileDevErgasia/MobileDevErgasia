@@ -26,7 +26,7 @@ import java.io.IOException;
  * mediaPlayer : MediaPLayer μεταβλητη χρησιμοποιεται για την αναπαραγωγη της ηχογραφησης που αντιστοιχει στο αντικειμενο
  */
 public class CustomItem implements Parcelable {
-    private String path,desc;
+    private String path,desc,previous;
     private boolean playing,isChecked,toAutoLoop,backgroundColorEdited,textColorEdited;
     private customItemListener listener;
 
@@ -37,11 +37,11 @@ public class CustomItem implements Parcelable {
     /**
      * Constructor της κλασης. Αρχικοποιει τις τιμες των playing και isChecked σε false
      * @param path Το μονοπατι που βρισκεται το αρχειο που αντιστοιχει σε αυτο το αντικειμενο
-     * @param desc Περιγραφη του αρχειου,χρησιμοποειται στην εμφανιση του στο gridView
+     * @param name Περιγραφη του αρχειου,χρησιμοποειται στην εμφανιση του στο gridView
      */
-    public CustomItem(String path, String desc){
+    public CustomItem(String path, String name){
         this.path=path;
-        this.desc=desc;
+        this.desc=name;
         playing=false;
         isChecked=false;
         toAutoLoop=false;
@@ -87,7 +87,7 @@ public class CustomItem implements Parcelable {
      * αλλαζει την τιμη του desc
      * @param s το νεο desc
      */
-    public void setDesc(String s){
+    public void setName(String s){
         desc=s;
     }
 
@@ -155,7 +155,7 @@ public class CustomItem implements Parcelable {
      *
      * @return Επιστρεφει την περιγραφη του αντικειμενου,χρησιμοποειται στην εμφανιση του στο gridView
      */
-    public String getDesc() {
+    public String getName() {
         return desc;
     }
 

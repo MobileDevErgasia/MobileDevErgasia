@@ -112,7 +112,6 @@ public class CustomListHandler extends AppCompatActivity {
                              tempView.setBackground(defaultBackground);
                         }
                         if(item.isTextColorEdited()){
-                            System.out.println("~~~\n" + item.getDesc() );
                             TextView textView=tempView.findViewById(R.id.desc);
                             textView.setTextColor(item.getTextColor());
                         }else{
@@ -201,7 +200,6 @@ public class CustomListHandler extends AppCompatActivity {
      * @param item το CustomItem το οποιο επιλεγθηκε
      */
     private void clicked(View view, CustomItem item){
-        System.out.println(item.toString());
         if(!toCheck){
             if (!item.isPlaying()){
                 item.start(item.getPath());
@@ -306,7 +304,32 @@ public class CustomListHandler extends AppCompatActivity {
     }
 
     //TODO
-    public void replace(int i,CustomItem item){
+    public void replace(int i,CustomItem item,String previousName){
+        item.setListener(new CustomItem.customItemListener() {
+            @Override
+            public void onItemFinished() {
+                itemsPlaying--;
+                customListListener.onStopPlaying();
+            }
+        });
+
+        myList.set(i,item);
+
+        if(previousName!=null){
+            myDatabase.updatePath(previousName,item.getPath());
+
+            myDatabase.updateName(previousName,item.getName());
+        }
+        if(item.isBackgroundColorEdited()){
+            myDatabase.updateBackground(item.getName(),item.getBackgroundColor());
+        }
+        if(item.isTextColorEdited()){
+            myDatabase.updateTextColor(item.getName(),item.getTextColor());
+        }
+        arrayAdapter.notifyDataSetChanged();
+    }
+
+    public void reset(int i,CustomItem item){
         item.setListener(new CustomItem.customItemListener() {
             @Override
             public void onItemFinished() {
@@ -315,14 +338,9 @@ public class CustomListHandler extends AppCompatActivity {
             }
         });
         myList.set(i,item);
-        if(item.isBackgroundColorEdited()){
-            myDatabase.updateBackground(item.getDesc(),item.getBackgroundColor());
-        }
-        if(item.isTextColorEdited()){
-            myDatabase.updateTextColor(item.getDesc(),item.getTextColor());
-        }
-        arrayAdapter.notifyDataSetChanged();
+        myDatabase.reset(item.getName());
     }
+
 
     /**
      * Σταματανε να παιζουν ολα για να γινει ηχογραφηση
@@ -352,7 +370,7 @@ public class CustomListHandler extends AppCompatActivity {
 
         for (CustomItem item : filesToDelete) {
             new File(item.getPath()).delete();
-            myDatabase.deleteEntry(item.getDesc());
+            myDatabase.deleteEntry(item.getName());
         }
 
         while(i<myList.size()){

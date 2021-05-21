@@ -225,34 +225,6 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
     }
 
     /**
-     * Αναδρομικη συναρτηση που ελεγχει αν το αρχειο υπαρχει ηδη
-     * αν υπαρχει προσθετει το (1) και ξανα ελεγχει κοκ
-     * @param oldFile το αρχειο το οποιο ελεγχουμε
-     * @param found ποσες φορες εχει βρεθει αρχειο με το ιδιο ονομα,χρησιμοποιειται στην δημιουργια του καινουριου
-     * @return επιστρεφει το αρχειο.
-     */
-    private  File check(File oldFile, int found){
-        File newFile=new File(oldFile.getAbsolutePath());
-
-        if (oldFile.exists()){
-            String temporaryName=oldFile.getAbsolutePath();
-
-            if (found==0){
-                temporaryName=temporaryName.replaceFirst("\\.mp3","(1).mp3");
-
-            }else{
-                temporaryName= temporaryName.replaceFirst("(\\(\\d\\))","(" + (found+1) + ")");
-                //αν πχ εχουμε το αρχειο με ονομα myRecording(2),αντικαθιστα το (2) με το (3)
-            }
-            newFile=new File(temporaryName);
-            newFile=check(newFile,++found);
-        }else{
-            return newFile;
-        }
-        return newFile;
-    }
-
-    /**
      * Εμφανιζει το dialog για να δωθει ονομα στην ηχογραφηση
      */
     private void showSaveDialog(){
@@ -282,16 +254,55 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
     }
 
     /**
+     * Αναδρομικη συναρτηση που ελεγχει αν το αρχειο υπαρχει ηδη
+     * αν υπαρχει προσθετει το (1) και ξανα ελεγχει κοκ
+     * @param oldFile το αρχειο το οποιο ελεγχουμε
+     * @param found ποσες φορες εχει βρεθει αρχειο με το ιδιο ονομα,χρησιμοποιειται στην δημιουργια του καινουριου
+     * @return επιστρεφει το αρχειο.
+     */
+    private  File check(File oldFile, int found){
+        File newFile=new File(oldFile.getAbsolutePath());
+
+        if (oldFile.exists()){
+            String temporaryName=oldFile.getAbsolutePath();
+
+            if (found==0){
+                temporaryName=temporaryName.replaceFirst("\\.mp3","(1).mp3");
+
+            }else{
+                temporaryName= temporaryName.replaceFirst("(\\(\\d\\))","(" + (found+1) + ")");
+                //αν πχ εχουμε το αρχειο με ονομα myRecording(2),αντικαθιστα το (2) με το (3)
+            }
+            newFile=new File(temporaryName);
+            newFile=check(newFile,++found);
+        }else{
+            return newFile;
+        }
+        return newFile;
+    }
+
+    private String getFilename(File file){
+        String t=file.getName().replace(".mp3","");
+        return t;
+    }
+
+    /**
      * Αλλαζει το ονομα της ηχογραφησης στο επιθυμητο
      * και το προσθετει στο GridView
-     * @param name το επιθυμητο ονομα
+     * @param n το επιθυμητο ονομα
      */
     @Override
-    public void saveFileAs(String name) {
-        finalFile=new File(folder + "/" + name + ".mp3");
+    public void saveFileAs(String n) {
+        finalFile=new File(folder + "/" + n + ".mp3");
         finalFile=check(finalFile,0);
         temporaryFile.renameTo(finalFile);
+        String name=getFilename(finalFile);
         customListHandler.addToList(finalFile.getPath(),name); //προσθηκη ηχογραφησης στην λιστα αν αλλαξει το name
+    }
+
+    private void renameFile(String path,String newPath){
+        File newFile=new File(path);
+        newFile.renameTo(new File(newPath));
     }
 
     /**
@@ -376,7 +387,14 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
         int index=intent.getIntExtra("index",0);
 
         if(intent.hasExtra("finished")){
-            customizeItem(item,index);
+            String previousName=intent.getStringExtra("previousName");
+            if (previousName!=null){
+                String path=item.getPath();
+                String newPath=folder.getAbsolutePath() + "/" + item.getName() + ".mp3";
+                renameFile(path,newPath);
+                item.setPath(newPath);
+            }
+            customizeItem(item,index,previousName);
         }else if(intent.hasExtra("cancelled")){
             //DoNothing
         }
@@ -397,11 +415,12 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
 
     private void resetItem(CustomItem item,int index){
         item.reset();
-        customListHandler.replace(index,item);
+        customListHandler.reset(index,item);
     }
 
-    private void customizeItem(CustomItem item,int index){
-        customListHandler.replace(index,item);
+    private void customizeItem(CustomItem item,int index,String previousName){
+
+        customListHandler.replace(index,item,previousName);
     }
 
     /**

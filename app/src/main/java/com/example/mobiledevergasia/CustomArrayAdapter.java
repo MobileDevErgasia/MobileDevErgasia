@@ -32,7 +32,7 @@ public class CustomArrayAdapter extends ArrayAdapter<CustomItem> {
 
         CustomItem currentItem= getItem(position);
         TextView desc=view.findViewById(R.id.desc);
-        desc.setText(currentItem.getDesc());
+        desc.setText(currentItem.getName());
         ImageView imageView=view.findViewById(R.id.soundOnImageView);
         imageView.setImageResource(R.drawable.sound_on_image);
         return view;
