@@ -1,6 +1,5 @@
 package com.example.mobiledevergasia;
 
-import android.app.AppComponentFactory;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -158,7 +157,7 @@ public class CustomListHandler extends AppCompatActivity {
     private void initArrayLists(View view) {
        myDatabase = new Database(context);
         myList = new ArrayList<>();
-        myList = myDatabase.getitems();
+        myList = myDatabase.getItems();
 
         for (int i = 0; i < myList.size(); i++) {
 
@@ -169,8 +168,9 @@ public class CustomListHandler extends AppCompatActivity {
                     customListListener.onStopPlaying();
                 }
             });
-            filesToDelete = new ArrayList<>();
         }
+        filesToDelete = new ArrayList<>();
+
     }
 
     /**
@@ -300,7 +300,7 @@ public class CustomListHandler extends AppCompatActivity {
         };
         CustomItem customItem=new CustomItem(path,desc);
         customItem.setListener(customItemListener);
-        myDatabase.newentry(customItem);
+        myDatabase.newEntry(customItem);
         myList.add(customItem);
         arrayAdapter.notifyDataSetChanged();
     }
@@ -315,7 +315,12 @@ public class CustomListHandler extends AppCompatActivity {
             }
         });
         myList.set(i,item);
-
+        if(item.isBackgroundColorEdited()){
+            myDatabase.updateBackground(item.getDesc(),item.getBackgroundColor());
+        }
+        if(item.isTextColorEdited()){
+            myDatabase.updateTextColor(item.getDesc(),item.getTextColor());
+        }
         arrayAdapter.notifyDataSetChanged();
     }
 
@@ -347,6 +352,7 @@ public class CustomListHandler extends AppCompatActivity {
 
         for (CustomItem item : filesToDelete) {
             new File(item.getPath()).delete();
+            myDatabase.deleteEntry(item.getDesc());
         }
 
         while(i<myList.size()){
