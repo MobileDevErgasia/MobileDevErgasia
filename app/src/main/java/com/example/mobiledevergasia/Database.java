@@ -137,6 +137,28 @@ public class Database extends SQLiteOpenHelper {
             return false;
         }
     }
+    /**
+     * Κάνει reset τα χρώματα του background και text
+     **/
+    public Boolean reset(String name){
+        SQLiteDatabase DB= this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("textcolor",Color.rgb(255,255,255));
+        contentValues.put("backgroundcheck",0);
+        Cursor cursor=DB.rawQuery("Select * from Entries where name = ?",new String[]{name});
+        if (cursor.getCount()>0) {
+            long result = DB.update("Entries", contentValues, "name=?", new String[]{name});
+            cursor.close();
+            if (result == -1) {
+                return false;
+            } else {
+                return true;
+            }
+        }else {
+            return false;
+        }
+
+    }
 
     /**
      Επιστρέφει μία λίστα όλων των αντικειμένων της βάσης
