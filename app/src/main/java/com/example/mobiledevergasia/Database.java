@@ -119,13 +119,13 @@ public class Database extends SQLiteOpenHelper {
         ArrayList <CustomItem> items= new ArrayList<>();
         SQLiteDatabase DB= this.getWritableDatabase();
         Cursor cursor =DB.rawQuery("Select * from Entries",null);
-        StringBuffer buffer=new StringBuffer();
         while ((cursor.moveToNext())) {
-            CustomItem item = new CustomItem(cursor.getColumnName(0), cursor.getColumnName(3));
-            item.setTextColor(Integer.parseInt(cursor.getString(2)));
-            item.setBackgroundColor(Color.red(Integer.parseInt(cursor.getString(1))),Color.green(Integer.parseInt(cursor.getString(1))),Color.blue(Integer.parseInt(cursor.getString(1))));
+            CustomItem item = new CustomItem(cursor.getString(3), cursor.getString(0));
+            item.setTextColor(cursor.getInt(2));
+            item.setBackgroundColor(Color.red(cursor.getInt(1)),Color.green(cursor.getInt(1)),Color.blue(cursor.getInt(1)));
             items.add(item);
         }
+        cursor.close();
         return items;
     }
 }
