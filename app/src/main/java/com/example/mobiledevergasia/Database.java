@@ -10,6 +10,11 @@ import android.graphics.Color;
 import java.util.ArrayList;
 /**
  Κλάση για τη δημιουργία βάσης δεδομένων και την διαχείριση των αντικειμένων της
+ name: το όνομα του στοιχείου
+ background: το χρώμα του background
+ backgroundcheck: λειτουργεί ως FLAG για το ενδεχόμενο της αλλαγής του background
+ textcolor: το χρώμα του κειμένου
+ path: το path της ηχογράφησης
 
  **/
 
@@ -33,6 +38,7 @@ public class Database extends SQLiteOpenHelper {
 
     /**
      Προσθέτει ένα νέο αντικείμενο στη βάση
+     @param item:το στοιχείο με το σύνολο πληροφοριών για τη νέα προσθήκη στη βάση
 
      **/
     public Boolean newEntry(CustomItem item) {
@@ -48,6 +54,8 @@ public class Database extends SQLiteOpenHelper {
     }
     /**
      Αλλάζει το όνομα ενός στοιχείου στη βάση
+     @param oldName:το ήδη υπάρχον όνομα του στοιχείο
+     @param newName:το νέο όνομα που θα έχει το στοιχείο με name=oldName
 
      **/
     public Boolean updateName(String oldName,String newName){
@@ -66,6 +74,8 @@ public class Database extends SQLiteOpenHelper {
     }
     /**
      Αποθηκεύει το νέο χρώμα του background στη βάση
+     @param name:το όνομα του στοιχείου στη βάση
+     @param color:το νέο χρώμα του background του στοιχείου
 
      **/
 
@@ -86,6 +96,8 @@ public class Database extends SQLiteOpenHelper {
 
     /**
      Αποθηκεύει το νέο χρώμα του κειμένου στη βάση
+     @param name:το όνομα του στοιχείου στη βάση
+     @param color:το νέο χρώμα του κειμένου του στοιχείου
 
      **/
     public Boolean updateTextColor(String name, int color) {
@@ -101,6 +113,10 @@ public class Database extends SQLiteOpenHelper {
             return false;
         }
     }
+    /**
+     * @param name:το όνομα του στοιχείου στη βάση
+     * @param path:το νέο path του στοιχείου
+     **/
 
     public Boolean updatePath(String name,String path) {
         System.out.println("mpika mpika mpika mpika mpika " + path);
@@ -120,6 +136,7 @@ public class Database extends SQLiteOpenHelper {
 
     /**
      Διαγράφη ένα αντικείμενο από τη βάση
+     @param name:το όνομα του στοιχείου στη βάση
 
      **/
     public Boolean deleteEntry(String name) {
@@ -136,6 +153,7 @@ public class Database extends SQLiteOpenHelper {
 
     /**
      * Κάνει reset τα χρώματα του background και text
+     * @param name:το όνομα του στοιχείου στη βάση
      **/
     public Boolean reset(String name){
         SQLiteDatabase DB= this.getWritableDatabase();
@@ -172,5 +190,6 @@ public class Database extends SQLiteOpenHelper {
         return items;
     }
 }
+
 
 
