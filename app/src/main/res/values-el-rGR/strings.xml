@@ -19,4 +19,7 @@
     <string name="finish">Τέλος</string>
     <string name="reset">Επαναφορά</string>
     <string name="file_exists_toast">Αυτό το όνομα υπάρχει ήδη</string>
+    <string name="delete">Διαγραφή</string>
+    <string name="confirm_delete">Είστε σίγουρος/η ότι θέλετε να διαγράψετε τα επιλεγμένα αντικείμενα;</string>
+    <string name="delete_dialog">Διαγραφή αντικειμένων</string>
 </resources>

@@ -16,8 +16,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -31,6 +31,7 @@ import java.util.Locale;
 public class SaveDialog extends AppCompatDialogFragment {
     private EditText fileNameTextView;
     private SaveDialogListener listener;
+    private File folder;
 
     @NonNull
     @Override
@@ -38,8 +39,8 @@ public class SaveDialog extends AppCompatDialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
-        View customView = inflater.inflate(R.layout.dialog_layout, null); //δημιουργεια του dialog_layout
-        builder.setView(customView) //προσθηκη του dialog_layout
+        View customView = inflater.inflate(R.layout.save_dialog_layout, null); //δημιουργεια του dialog_layout
+        builder.setView(customView)
                 .setTitle(R.string.save_recording) //Τιτλος
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
@@ -50,17 +51,15 @@ public class SaveDialog extends AppCompatDialogFragment {
                 .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //doNothing.
+                       // performOkButtonAction();
                     }
-                }); //δημιουργια save button,γινεται override στην συνεχεια
+                }); //δημιουργια save button
 
         fileNameTextView = customView.findViewById(R.id.fileName);
         SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_H_m", Locale.getDefault());
         String currentDateandTime = sdf.format(new Date());
-        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~   " +currentDateandTime);
         String text=getString(R.string.defaultName) + "_" + currentDateandTime;
         fileNameTextView.setText(text);
-        System.out.println("!!!!!!!!!!!!!!!!!   " + R.string.defaultName);
 
         AlertDialog saveDialog = builder.create();
         saveDialog.setCanceledOnTouchOutside(false);
@@ -101,12 +100,31 @@ public class SaveDialog extends AppCompatDialogFragment {
     private void performOkButtonAction() {
         String filename = fileNameTextView.getText().toString();
         if(fileNameIsOkay(filename)){
-            listener.saveFileAs(filename);
-            dismiss();
+            if(!fileExists(filename)){
+                listener.saveFileAs(filename);
+                dismiss();
+            }else{
+                Toast.makeText(getActivity(), R.string.file_exists_toast, Toast.LENGTH_SHORT).show();
+            }
+
         }else{
             //wait for correct input
             Toast.makeText(getActivity(), R.string.WrongInputMessage, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    /**
+     * Ελεγχει αν υπαρχει αρχειο με το ονομα που εχει δωσει ο χρηστης
+     * @param filename το ονομα του αρχειου
+     * @return True αν υπαρχει, false αν δεν υπαρχει
+     */
+    private boolean fileExists(String filename){
+        File newFile= new File(folder + "/" + filename + ".mp3");
+        if(newFile.exists()){
+            newFile.delete();
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -115,26 +133,25 @@ public class SaveDialog extends AppCompatDialogFragment {
         super.onCancel(dialog);
     }
 
-    /**
-     * Γινεται override της onResume για να γινει override η λειτουργια του
-     * button_positive
-     */
-    @Override
-    public void onResume() {
-        super.onResume();
+   /**
+    * Γινεται override της onResume για να γινει override η λειτουργια του
+    * button_positive
+    */
+   @Override
+   public void onResume() {
+       super.onResume();
 
-        AlertDialog alertDialog = (AlertDialog) getDialog();
+       AlertDialog alertDialog = (AlertDialog) getDialog();
 
-        Button okButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-        okButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v)
-            {
+       Button okButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+       okButton.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View v)
+           {
                 performOkButtonAction();
-            }
-        });
-    }
-
+           }
+       });
+   }
 
 
     /**
@@ -144,7 +161,7 @@ public class SaveDialog extends AppCompatDialogFragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-
+        folder=new File(context.getExternalFilesDir(null) + "/MyRecording/");
         try {
             listener = (SaveDialogListener) context;
         } catch (ClassCastException e) {

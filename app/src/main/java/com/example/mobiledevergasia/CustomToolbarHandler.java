@@ -32,7 +32,7 @@ import java.util.ArrayList;
  * καλειται οταν πατιεται ειτε η cancelImageView,ειτε η deleteImageView
  * counter : int μετραει το πληθος των στοιχειων προς διαγραφη και το εμφανιζει μεσω του counterTextView
  */
-public class CustomToolbarHandler {
+public class    CustomToolbarHandler {
 
     private final ImageView cancelImageView,deleteImageView,editImageview;
     private  TextView counterTextView,itemsSelectedTextView;

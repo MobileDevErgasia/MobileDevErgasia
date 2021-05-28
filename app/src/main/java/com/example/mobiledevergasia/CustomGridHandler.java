@@ -1,5 +1,6 @@
 package com.example.mobiledevergasia;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -12,6 +13,7 @@ import android.widget.GridView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -36,16 +38,11 @@ import java.util.ArrayList;
  *
  *
  */
-public class CustomListHandler extends AppCompatActivity {
+public class CustomGridHandler extends AppCompatActivity {
     private  CustomToolbarHandler customToolbarHandler;
-    private CustomListListener customListListener;
+    private CustomGridListener customGridListener;
     private Database myDatabase;
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
     private final GridView myGridView;
-
     private static ArrayList<CustomItem> myList,filesToDelete;
     private final CustomArrayAdapter arrayAdapter;
 
@@ -54,8 +51,13 @@ public class CustomListHandler extends AppCompatActivity {
 
     private int counter=0,itemsPlaying=0;
     private boolean toCheck=false;
-
+    private AppCompatActivity voiceRecordActivity;
     private Context context;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
     /**
      * Constructor της κλασης
@@ -64,15 +66,15 @@ public class CustomListHandler extends AppCompatActivity {
      * @param view Το view στο οποιο βρισκεται το myGridView,δηλαδη το voice_record_activity
      * @param context
      */
-    public CustomListHandler(View view, Context context){
+    public CustomGridHandler(View view, Context context,AppCompatActivity activity){
         this.context=context;
         myGridView =view.findViewById(R.id.gridView);
-
+        voiceRecordActivity=activity;
         itemCheckedColor=context.getResources().getColor(R.color.green_200);
         defaultBackground =context.getResources().getDrawable(R.drawable.item_gradient);
 
         initCustomToolbarHandler(view);
-        initArrayLists(view);
+        initArrayLists();
 
         arrayAdapter = new CustomArrayAdapter(context,0,myList);
         myGridView.setAdapter(arrayAdapter);
@@ -138,7 +140,7 @@ public class CustomListHandler extends AppCompatActivity {
             }
 
             @Override
-            public void onDeleteImagePressed() { delete(); }
+            public void onDeleteImagePressed() { customGridListener.onDeletePressed();}
 
             @Override
             public void onEditImagePressed() { startCustomizeItemActivity(); }
@@ -150,10 +152,9 @@ public class CustomListHandler extends AppCompatActivity {
 
     /**
      * Δημιουργια της λιστας myList
-     * @param view Το view στο οποιο βρισκεται το toolbar,δηλαδη το voice_record_activity
-     *             χρησιμοποιεται στην αρχικοποιση των imageView,textView και appBarLayout.
+     *
      */
-    private void initArrayLists(View view) {
+    private void initArrayLists() {
        myDatabase = new Database(context);
         myList = new ArrayList<>();
         myList = myDatabase.getItems();
@@ -164,12 +165,11 @@ public class CustomListHandler extends AppCompatActivity {
                 @Override
                 public void onItemFinished() {
                     itemsPlaying--;
-                    customListListener.onStopPlaying();
+                    customGridListener.onStopPlaying();
                 }
             });
         }
         filesToDelete = new ArrayList<>();
-
     }
 
     /**
@@ -204,11 +204,11 @@ public class CustomListHandler extends AppCompatActivity {
             if (!item.isPlaying()){
                 item.start(item.getPath());
                 itemsPlaying++;
-                customListListener.onStartPlaying();
+                customGridListener.onStartPlaying();
             }else{
                 item.stop();
                 itemsPlaying--;
-                customListListener.onStopPlaying();
+                customGridListener.onStopPlaying();
             }
         }else{
             if (item.isChecked()){
@@ -293,7 +293,7 @@ public class CustomListHandler extends AppCompatActivity {
             @Override
             public void onItemFinished() {
                 itemsPlaying--;
-                customListListener.onStopPlaying();
+                customGridListener.onStopPlaying();
             }
         };
         CustomItem customItem=new CustomItem(path,desc);
@@ -309,7 +309,7 @@ public class CustomListHandler extends AppCompatActivity {
             @Override
             public void onItemFinished() {
                 itemsPlaying--;
-                customListListener.onStopPlaying();
+                customGridListener.onStopPlaying();
             }
         });
 
@@ -334,7 +334,7 @@ public class CustomListHandler extends AppCompatActivity {
             @Override
             public void onItemFinished() {
                 itemsPlaying--;
-                customListListener.onStopPlaying();
+                customGridListener.onStopPlaying();
             }
         });
         myList.set(i,item);
@@ -353,7 +353,7 @@ public class CustomListHandler extends AppCompatActivity {
                 item.stop();
                // myGridView.getChildAt(i).findViewById(R.id.soundOnImageView).setVisibility(View.GONE);
             }
-            customListListener.onStopPlaying();
+            customGridListener.onStopPlaying();
         }
 
     }
@@ -365,7 +365,7 @@ public class CustomListHandler extends AppCompatActivity {
      * λιστα συχνα καποια επαιρναν την θεση καποια διαγραμενου αρχειου και εμεναν επιλεγμενα
      * Απενεργοποιει την επιλογη πολλαπλων αντικειμενων και κανει reset τον counter
      */
-    private void delete(){
+    public void delete(){
         int i=0;
 
         for (CustomItem item : filesToDelete) {
@@ -390,7 +390,6 @@ public class CustomListHandler extends AppCompatActivity {
     }
 
     /**
-     *  Καλειται απτην onCancelPressed του CustomToolbarListener και την backPressed()
      *  Αποεπιλεγει ολα τα αντικειμενα
      *  Κρυβει το toolbar
      *  Απενεργοποιει την επιλογη πολλαπλων αντικειμενων και κανει reset τον counter
@@ -402,11 +401,13 @@ public class CustomListHandler extends AppCompatActivity {
             itemUncheck(view,myList.get(i));
         }
         toCheck=false;
+        filesToDelete.clear();
         counter=0;
     }
 
     //TODO
     private void startCustomizeItemActivity(){
+        filesToDelete.clear();
         CustomItem myItem=null;
         int index=0;
         for (int i = 0; i < myList.size(); i++) {
@@ -444,10 +445,10 @@ public class CustomListHandler extends AppCompatActivity {
 
     /**
      * αρχικοποιηση του customListListener
-     * @param customListListener Interface το οποιο πρεπει να γινει override
+     * @param customGridListener Interface το οποιο πρεπει να γινει override
      */
-    public void setCustomListListener(CustomListListener customListListener){
-        this.customListListener =customListListener;
+    public void setCustomGridListener(CustomGridListener customGridListener){
+        this.customGridListener = customGridListener;
     }
 
     //TODO
@@ -457,15 +458,17 @@ public class CustomListHandler extends AppCompatActivity {
         }
     }
 
+
     /**
      * interface της κλασης,χρησιμοποιειται απο την VoiceRecordActivity
      * η συναρτηση onStartPlaying καλειται οταν ενα αντικειμενο ξεκιναει την αναπαραγωγη
      * η συναρτηση onStopPlaying καλειται οταν αντικειμενο σταματησει την αναπαραγωγη,
      * ειτε λογω χρηστη ειτε επειδη τελειωσε
      */
-    public interface CustomListListener{
+    public interface CustomGridListener     {
         void onStartPlaying();
         void onStopPlaying();
+        void onDeletePressed();
     }
 
 

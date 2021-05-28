@@ -26,7 +26,7 @@ import java.io.IOException;
  * mediaPlayer : MediaPLayer μεταβλητη χρησιμοποιεται για την αναπαραγωγη της ηχογραφησης που αντιστοιχει στο αντικειμενο
  */
 public class CustomItem implements Parcelable {
-    private String path,desc,previous;
+    private String path,desc;
     private boolean playing,isChecked,toAutoLoop,backgroundColorEdited,textColorEdited;
     private customItemListener listener;
 

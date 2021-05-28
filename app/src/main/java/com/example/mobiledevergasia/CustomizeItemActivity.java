@@ -149,7 +149,7 @@ public class CustomizeItemActivity extends AppCompatActivity implements SeekBar.
         finishButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(nameChanged ){
+                if(nameChanged){
                     name=nameText.getText().toString();
                 }else{
                     name=previousName;
@@ -157,12 +157,6 @@ public class CustomizeItemActivity extends AppCompatActivity implements SeekBar.
 
                 if (fileNameIsOkay(name)){
                     Intent myIntent=new Intent(getApplicationContext(),VoiceRecordActivity.class);
-                    if(colorChanged){
-                        item.setBackgroundColor(red,green,blue);
-                    }
-                    if(textColorChanged){
-                        item.setTextColor(textColor);
-                    }
                     if(!name.equals(previousName)){
                         File newFile= new File(folder + "/" + name + ".mp3");
                         if(newFile.exists()){
@@ -172,6 +166,13 @@ public class CustomizeItemActivity extends AppCompatActivity implements SeekBar.
                         }
                         myIntent.putExtra("previousName",previousName);
                     }
+                    if(colorChanged){
+                        item.setBackgroundColor(red,green,blue);
+                    }
+                    if(textColorChanged){
+                        item.setTextColor(textColor);
+                    }
+
 
                     myIntent.putExtra("finished",true);
                     myIntent.putExtra("index",index);
@@ -209,8 +210,8 @@ public class CustomizeItemActivity extends AppCompatActivity implements SeekBar.
                 Intent myIntent=new Intent(getApplicationContext(),VoiceRecordActivity.class);
                 myIntent.putExtra("Reset", true);
                 myIntent.putExtra("index",index);
-                myIntent.putExtra("name",name);
-                myIntent.putExtra("path",path);
+           //     myIntent.putExtra("name",name);
+            //    myIntent.putExtra("path",path);
                 myIntent.putExtra("customItem",item);
 
                 myIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);

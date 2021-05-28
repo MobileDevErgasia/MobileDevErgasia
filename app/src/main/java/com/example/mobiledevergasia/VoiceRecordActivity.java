@@ -1,8 +1,6 @@
 package com.example.mobiledevergasia;
 
 
-import androidx.annotation.NonNull;
-import androidx.annotation.StyleableRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -10,41 +8,32 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Parcelable;
-import android.os.StatFs;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Chronometer;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
 import java.util.Locale;
 
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-
 /**
  * TODO
  */
-public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog.SaveDialogListener {
+public class    VoiceRecordActivity extends AppCompatActivity implements SaveDialog.SaveDialogListener,ConfirmDeleteDialog.ConfirmDeleteListener {
 
 
     private ImageButton recordButton,stopPlayingButton,settingsButton;
     private File folder,temporaryFile,finalFile;
 
-    private CustomListHandler customListHandler;
+    private CustomGridHandler customGridHandler;
     private Recorder recorder;
 
     private String filename;
@@ -84,7 +73,7 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
         stopPlayingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                customListHandler.stop();
+                customGridHandler.stop();
                 stopPlayingButton.setVisibility(View.GONE);
             }
         });
@@ -113,8 +102,8 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
         }
 
         //κλαση που χειριζεται τα αντικειμενα της λιστας με της ηχογραφησεις
-        customListHandler = new CustomListHandler(findViewById(R.id.voice_record_activity),getApplicationContext());
-        customListHandler.setCustomListListener(new CustomListHandler.CustomListListener() {
+        customGridHandler = new CustomGridHandler(findViewById(R.id.voice_record_activity),getApplicationContext(),this);
+        customGridHandler.setCustomGridListener(new CustomGridHandler.CustomGridListener() {
             @Override
             public void onStartPlaying() {
                 showStopButton();
@@ -122,11 +111,21 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
 
             @Override
             public void onStopPlaying() {
-                if(!customListHandler.areItemsPlaying()){
+                if(!customGridHandler.areItemsPlaying()){
                     hideStopButton();
                 }
             }
+
+            @Override
+            public void onDeletePressed() {
+                showConfirmDeleteDialog();
+            }
         });
+    }
+
+    private void showConfirmDeleteDialog(){
+        ConfirmDeleteDialog confirmDeleteDialog=new ConfirmDeleteDialog();
+        confirmDeleteDialog.show(getSupportFragmentManager(),"confirmDeleteDialog");
     }
 
     /**
@@ -135,7 +134,7 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
      */
     private void openSettings(){
         hideStopButton();
-        customListHandler.cancel();
+        customGridHandler.cancel();
 
 
         Intent intent= new Intent(getApplicationContext(),Settings.class);
@@ -150,7 +149,7 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
      */
     private void buttonClick(){
         if (!recorder.isRecording()){
-            customListHandler.stop();
+            customGridHandler.stop();
             startRecording();
         }else{
             stopRecording();
@@ -194,7 +193,6 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
             return;
         }
         startClock();
-        customListHandler.stop();
         recordButton.setImageResource(R.drawable.stop_recording_image);
 
 
@@ -232,6 +230,16 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
         saveDialog.show(getSupportFragmentManager(), "saveDialog");
     }
 
+    @Override
+    public void deleteFiles() {
+        customGridHandler.delete();
+    }
+
+    @Override
+    public void deleteCancelled() {
+        customGridHandler.cancel();
+    }
+
     /**
      * Αν πατηθει το cancel στο SaveDialog ακυρωνεται η ηχογραφηση
      */
@@ -240,46 +248,6 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
         temporaryFile.delete();
     }
 
-    /**
-     * Ελεγχεται αν ειναι ενεργοποιημενη η επιλογη πολλαπλων στοιχειων
-     *      Αν ειναι καλειται η backPressed() του CustomListHandler
-     */
-    @Override
-    public void onBackPressed() {
-        if(customListHandler.isToCheck()){
-            customListHandler.backPressed();
-        }else{
-            super.onBackPressed();
-        }
-    }
-
-    /**
-     * Αναδρομικη συναρτηση που ελεγχει αν το αρχειο υπαρχει ηδη
-     * αν υπαρχει προσθετει το (1) και ξανα ελεγχει κοκ
-     * @param oldFile το αρχειο το οποιο ελεγχουμε
-     * @param found ποσες φορες εχει βρεθει αρχειο με το ιδιο ονομα,χρησιμοποιειται στην δημιουργια του καινουριου
-     * @return επιστρεφει το αρχειο.
-     */
-    private  File check(File oldFile, int found){
-        File newFile=new File(oldFile.getAbsolutePath());
-
-        if (oldFile.exists()){
-            String temporaryName=oldFile.getAbsolutePath();
-
-            if (found==0){
-                temporaryName=temporaryName.replaceFirst("\\.mp3","(1).mp3");
-
-            }else{
-                temporaryName= temporaryName.replaceFirst("(\\(\\d\\))","(" + (found+1) + ")");
-                //αν πχ εχουμε το αρχειο με ονομα myRecording(2),αντικαθιστα το (2) με το (3)
-            }
-            newFile=new File(temporaryName);
-            newFile=check(newFile,++found);
-        }else{
-            return newFile;
-        }
-        return newFile;
-    }
 
     private String getFilename(File file){
         String t=file.getName().replace(".mp3","");
@@ -294,10 +262,9 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
     @Override
     public void saveFileAs(String n) {
         finalFile=new File(folder + "/" + n + ".mp3");
-        finalFile=check(finalFile,0);
         temporaryFile.renameTo(finalFile);
         String name=getFilename(finalFile);
-        customListHandler.addToList(finalFile.getPath(),name); //προσθηκη ηχογραφησης στην λιστα αν αλλαξει το name
+        customGridHandler.addToList(finalFile.getPath(),name); //προσθηκη ηχογραφησης στην λιστα αν αλλαξει το name
     }
 
     private void renameFile(String path,String newPath){
@@ -331,7 +298,7 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
         }
 
         boolean toAutoLoop=sharedPreferences.getBoolean("AutoLoop",false);
-        customListHandler.setAutoLooping(toAutoLoop);
+        customGridHandler.setAutoLooping(toAutoLoop);
 
         String language=sharedPreferences.getString("selectLanguage","el");
 
@@ -362,9 +329,13 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
      */
     @Override
     public void onStop() {
+        if(customGridHandler.isToCheck()){
+            customGridHandler.backPressed();
+        }
+
         if(recorder.isRecording()){
             recorder.clear();
-            customListHandler.stop();
+            customGridHandler.stop();
             stopClock();
             recordButton.setImageResource(R.drawable.start_recording_image);
             temporaryFile.delete();
@@ -373,7 +344,7 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
     }
     @Override
     protected void onRestart() {
-        customListHandler.cancel();
+        customGridHandler.cancel();
         super.onRestart();
     }
 
@@ -413,14 +384,27 @@ public class VoiceRecordActivity extends AppCompatActivity implements SaveDialog
         super.onResume();
     }
 
+    /**
+     * Ελεγχεται αν ειναι ενεργοποιημενη η επιλογη πολλαπλων στοιχειων
+     *      Αν ειναι καλειται η backPressed() του CustomListHandler
+     */
+    @Override
+    public void onBackPressed() {
+        if(customGridHandler.isToCheck()){
+            customGridHandler.backPressed();
+        }else{
+            super.onBackPressed();
+        }
+    }
+
     private void resetItem(CustomItem item,int index){
         item.reset();
-        customListHandler.reset(index,item);
+        customGridHandler.reset(index,item);
     }
 
     private void customizeItem(CustomItem item,int index,String previousName){
 
-        customListHandler.replace(index,item,previousName);
+        customGridHandler.replace(index,item,previousName);
     }
 
     /**

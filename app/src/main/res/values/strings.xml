@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">VoiceRecord</string>
+    <string name="app_name" translatable="false">RecIt</string>
     <string name="start_recording">Start Recording</string>
     <string name="stop_recording">Stop Recording</string>
     <string name="started_recording">Started recording</string>
@@ -17,6 +17,9 @@
     <string name="select_language">Select Language</string>
     <string name="change_text_color">Change Text Color</string>
     <string name="change_file_name">Change File Name:</string>
+    <string name="confirm_delete">Are you sure you want to delete the select items?</string>
+    <string name="delete">Delete</string>
+    <string name="delete_dialog">Delete Items</string>
     <string name="finish">Finish</string>
     <string name="reset">Reset</string>
     <string name="file_exists_toast">This name already exists</string>
