@@ -1,26 +1,28 @@
 package com.example.mobiledevergasia;
 
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.view.View;
-
-import androidx.annotation.NonNull;
-
-import com.example.mobiledevergasia.R;
-
 import java.io.IOException;
-//Todo javadoc genika kai return to default.
+
 /**
  * Κλαση για τα αντικειμενα του gridView
+ * Κανει implement Parcelable για να μπορει να σταλει μεσω intent
  *              Μεταβλητες :
  * path : το μονοπατι που βρισκεται το αρχειο που αντιστοιχει σε αυτο το αντικειμενο
  * desc : περιγραφη του αρχειου,χρησιμοποειται στην εμφανιση του στο gridView
  * playing : boolean μεταβλητη που ελεγχει αν ο mediaPlayer παιζει
  * toAutoLoop : boolean μεταβλητη που ελεγχει αν mediaPlayer θα κανει αυτοματη επαναληψη,ρυθμιζεται απο τα settings,default τιμη false
+ * backgroundColorEdited : boolean μεταβλητη που ελεγχει αν εχει αλλαξει το background του αντικειμενου
+ * textColorEdited : boolean μεταβλητη που ελεγχει αν εχει αλλαξει το χρωμα κειμενου του αντικειμενου
  * isChecked : boolean μεταπλητη που ελεγχει αν το αντικειμενο ειναι επιλεγμενο ή οχι
+ * red : int μεταβλητη για την τιμη του κοκκινου στο backGroundColor
+ * green : int μεταβλητη για την τιμη του πρασσινου στο backGroundColor
+ * blue : int μεταβλητη για την τιμη του μπλε στο backGroundColor
+ * textColor : int μεταβλητη για το χρωμα κειμενου
+ * backGroundColor : int μεταβλητη για το χρωμα του background,χρησιμοποει τα red green blue
  * listener : interface της κλασης καλειται οταν ενα αντικειμενο τελειωσει την αναπαραγωγη του
  * myView : το View που αντιστοιχει στο αντικειμενο
  * mediaPlayer : MediaPLayer μεταβλητη χρησιμοποιεται για την αναπαραγωγη της ηχογραφησης που αντιστοιχει στο αντικειμενο
@@ -50,6 +52,10 @@ public class CustomItem implements Parcelable {
         textColor=Color.WHITE;
     }
 
+    /**
+     * Απαιτειται για να γινει implement Parcelable
+     * @param in
+     */
     protected CustomItem(Parcel in) {
         path = in.readString();
         desc = in.readString();
@@ -65,6 +71,9 @@ public class CustomItem implements Parcelable {
         backGroundColor=in.readInt();
     }
 
+    /**
+     * Απαιτειται για να γινει implement Parcelable
+     */
     public static final Creator<CustomItem> CREATOR = new Creator<CustomItem>() {
         @Override
         public CustomItem createFromParcel(Parcel in) {
@@ -92,7 +101,8 @@ public class CustomItem implements Parcelable {
     }
 
     /**
-     *
+     * αλλαζει το χρωμα κειμενου και ενημερωνει το αντιστοιχο
+     * flag οτι εχει γινει αλλαγη
      * @param color το επιθυμητο χρωμα
      */
     public void setTextColor(int color){
@@ -101,10 +111,12 @@ public class CustomItem implements Parcelable {
     }
 
     /**
-     *
-     * @param red
-     * @param green
-     * @param blue
+     * Αλλαζει το backgroundColor μεσω την Color.rgb
+     * (για την αλλαγη του χρωματος χρησιμοποιουνται seekbars red green blue)
+     * και ενημερωνει το αντιστοιχο flag οτι εχει γινει αλλαγη
+     * @param red η τιμη του κοκκινου
+     * @param green η τιμη του πρασσινου
+     * @param blue η τιμη του μπλε
      */
     public void setBackgroundColor(int red, int green, int blue){
         this.red=red;
@@ -140,15 +152,14 @@ public class CustomItem implements Parcelable {
         myView = view;
     }
 
+    /**
+     * Επαναφερει το αντικειμενο στην αρχικη του κατασταση
+     */
     public void reset(){
         backgroundColorEdited=false;
         backGroundColor=0;
         textColorEdited=false;
         textColor=Color.WHITE;
-    }
-
-    public CustomItem getItem(){
-        return this;
     }
 
     /**
@@ -312,11 +323,20 @@ public class CustomItem implements Parcelable {
                 '}';
     }
 
+    /**
+     * Απαιτειται για να γινει implement Parcelable
+     * @return
+     */
     @Override
     public int describeContents() {
         return 0;
     }
 
+    /**
+     * Απαιτειται για να γινει implement Parcelable
+     * @param dest
+     * @param flags
+     */
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(path);

@@ -26,9 +26,11 @@ import java.util.ArrayList;
  *          Μεταβλητες :
  *
  * CustomToolbarHandler : Κλαση για τον χειρισμο του toolbar,καλειται για στην επιλογη πολλαπλων αντικειμενων
- * customListListener : Interface της κλασης CustomItem χρ
+ * customListListener : Interface της κλασης CustomItem
+ * myDatabase : Η βάση δεδομένων μας
  * myGridView : GridView το οποιο χειριζεται η κλαση. Τα αντικειμενα του ειναι CustomItem
  * myList : ArrayList με τα στοιχεια CustomItem που βρισκονται αποθηκευμενα
+ * filesToDelete : ArrayList με τα αντικείμενα προς διαγραφή
  * arrayAdapter : CustomArrayAdapter προστιθεται στο myGridView και του προσθετει τα CustomItem
  * itemCheckedColor : πρασινο χρωμα που δηλωνει οτι το στοιχειο εχει επιλεγθει
  * defaultBackground : Το defaultBackground χρωμα των στοιχειων.
@@ -51,7 +53,6 @@ public class CustomGridHandler extends AppCompatActivity {
 
     private int counter=0,itemsPlaying=0;
     private boolean toCheck=false;
-    private AppCompatActivity voiceRecordActivity;
     private Context context;
 
     @Override
@@ -66,10 +67,9 @@ public class CustomGridHandler extends AppCompatActivity {
      * @param view Το view στο οποιο βρισκεται το myGridView,δηλαδη το voice_record_activity
      * @param context
      */
-    public CustomGridHandler(View view, Context context,AppCompatActivity activity){
+    public CustomGridHandler(View view, Context context){
         this.context=context;
         myGridView =view.findViewById(R.id.gridView);
-        voiceRecordActivity=activity;
         itemCheckedColor=context.getResources().getColor(R.color.green_200);
         defaultBackground =context.getResources().getDrawable(R.drawable.item_gradient);
 
@@ -96,14 +96,14 @@ public class CustomGridHandler extends AppCompatActivity {
                     return true;
                 }
                 return false;
-
             }
         });
 
         view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if(!toCheck){
+                if(!toCheck){//μπανει αυτο το flag επειδη αν κληθει οταν ειναι ενεργοποιημενη η
+                            //επιλογη πολλαπλων αντικειμενων δεν λειτουργει σωστα η αλλαγη χρωματων.
                     for (int i=0;i<myList.size();i++){
                         CustomItem item=myList.get(i);
                         View tempView=myGridView.getChildAt(i);
@@ -147,7 +147,6 @@ public class CustomGridHandler extends AppCompatActivity {
         };
         customToolbarHandler=new CustomToolbarHandler(view);
         customToolbarHandler.setListener(customToolbarListener);
-        customToolbarHandler.setContext(context);
     }
 
     /**
@@ -282,7 +281,7 @@ public class CustomGridHandler extends AppCompatActivity {
     }
 
     /**
-     * Προσθέτει το αρχειο στη λιστα καθως δημιουργει
+     * Προσθέτει το αρχειο στη λιστα και στην βαση καθως δημιουργει
      * και τον customItemListener του
      * και το εμφανιζει
      * @param path το μονοπατι του αρχειου
@@ -303,7 +302,14 @@ public class CustomGridHandler extends AppCompatActivity {
         arrayAdapter.notifyDataSetChanged();
     }
 
-    //TODO
+    /**
+     * Αντικατασταση του αντικειμενου στην θεση i,χρησιμοποιειται οταν
+     * τροποποειται το αντικειμενο και θελουμε να του δωσουμε να νεα δεδεμενα του
+     * @param i η θεση στην οποια βρισκεται το αντικειμενο
+     * @param item το αντικειμενο προς αντικατασταση
+     * @param previousName το προηγουμενο του ονομα,χρησιμοποιειται για να βρεθει στην βαση
+     *                     αν εχει αλλαξει το ονομα του
+     */
     public void replace(int i,CustomItem item,String previousName){
         item.setListener(new CustomItem.customItemListener() {
             @Override
@@ -329,6 +335,12 @@ public class CustomGridHandler extends AppCompatActivity {
         arrayAdapter.notifyDataSetChanged();
     }
 
+    /**
+     * Επαναφερει το αντικειμενο στην θεση i στην default κατασταση του,
+     * δηλαδη στο defaultBackgroundColor και το χρωμα κειμενου στο λευκο.
+     * @param i η θεση στην οποια βρισκεται το αντικειμενο
+     * @param item το αντικειμενο προς αντικατασταση
+     */
     public void reset(int i,CustomItem item){
         item.setListener(new CustomItem.customItemListener() {
             @Override
@@ -341,9 +353,8 @@ public class CustomGridHandler extends AppCompatActivity {
         myDatabase.reset(item.getName());
     }
 
-
     /**
-     * Σταματανε να παιζουν ολα για να γινει ηχογραφηση
+     * Σταματανε να παιζουν ολα τα αντικειμενα
      */
     protected void stop(){
         itemsPlaying=0;
@@ -351,15 +362,13 @@ public class CustomGridHandler extends AppCompatActivity {
             CustomItem item = myList.get(i);
             if (item.isPlaying()) {
                 item.stop();
-               // myGridView.getChildAt(i).findViewById(R.id.soundOnImageView).setVisibility(View.GONE);
             }
             customGridListener.onStopPlaying();
         }
-
     }
 
     /**
-     * Καλειται απτην onDeletePressed του CustomToolbarListener
+     * Καλειται απτην onDeleteFiles του ConfirmDeleteDialog
      * Διαγραφει τα επιλεγμενα αντικειμενα απτην myList και το myGridView και τα αντιστοιχα αρχεια τους
      * Αποεπιλεγει ολα τα αντικειμα του myGridView επειδη με την διαγραφη τους απτην
      * λιστα συχνα καποια επαιρναν την θεση καποια διαγραμενου αρχειου και εμεναν επιλεγμενα
@@ -405,7 +414,11 @@ public class CustomGridHandler extends AppCompatActivity {
         counter=0;
     }
 
-    //TODO
+    /**
+     * Ξεκιναει το CustomizeItemActivity
+     * Αρχικα βρισκει ποιο αντικειμενο ειναι επιλεγμενο και στη
+     * συνεχεια το στελνει ως extra στο intent,οπως και τον δεικτη του
+     */
     private void startCustomizeItemActivity(){
         filesToDelete.clear();
         CustomItem myItem=null;
@@ -451,19 +464,24 @@ public class CustomGridHandler extends AppCompatActivity {
         this.customGridListener = customGridListener;
     }
 
-    //TODO
+    /**
+     * Αλλαζει την τιμη του autoLoop των CustomItem.
+     * Καλειται απο την VoiceRecordActivity οταν υπαρχει αλλαγη του αντιστοιχου
+     * πεδιου των settings
+     * @param b True για να το ενεργοποιησει,false για να το απενεργοποισει
+     */
     public void setAutoLooping(Boolean b){
         for (CustomItem item : myList){
             item.setToAutoLoop(b);
         }
     }
 
-
     /**
      * interface της κλασης,χρησιμοποιειται απο την VoiceRecordActivity
      * η συναρτηση onStartPlaying καλειται οταν ενα αντικειμενο ξεκιναει την αναπαραγωγη
      * η συναρτηση onStopPlaying καλειται οταν αντικειμενο σταματησει την αναπαραγωγη,
      * ειτε λογω χρηστη ειτε επειδη τελειωσε
+     * η συναρτηση onDeletePressed καλειται οταν πατηθει το delete της CustomToolbar
      */
     public interface CustomGridListener     {
         void onStartPlaying();
@@ -473,25 +491,3 @@ public class CustomGridHandler extends AppCompatActivity {
 
 
 }
-
-
-/*
- myList=new ArrayList<>();
-
-        File directory = new File(view.getContext().getExternalFilesDir(null) + "/MyRecording/"+"");
-        File[] files = directory.listFiles();
-
-        int fileLength=files.length;
-        //βαζει στην λιστα ολα τα αρχεια που υπαρχουν αποθηκευμενα
-        for (int i=0;i<fileLength;i++){
-
-            myList.add(new CustomItem(files[i].toString(),"" + i)); //Το i θα αλλαξει οταν βαλουμε την βαση
-            myList.get(i).setListener(new CustomItem.customItemListener() {
-                @Override
-                public void onItemFinished() {
-                    itemsPlaying--;
-                    customListListener.onStopPlaying();
-                }
-            });
-            filesToDelete=new ArrayList<>();
- */

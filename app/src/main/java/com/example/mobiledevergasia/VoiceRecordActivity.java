@@ -25,41 +25,44 @@ import java.io.File;
 import java.util.Locale;
 
 /**
- * TODO
+ * Το βασικο activity της εφαρμογης,απο εδω γινεται η ηχογραφηση και η αναπαραγωγη αλλα και απο εδω
+ * πηγαινεις στα αλλα activity
+ *                  Μεταβλητες :
+ * recordButton : ImageButton με διπλη χρηση,την πρωτη φορα που πατιεται ηχογραφει,ενω αν ξαναπατηθει σταματαει την ηχογραφηση
+ * stopPlayingButton : ImageButton για το ολικο σταματημα αναπαραγωγων
+ * settingsButton : ImageButton που ανοιγει την Settings
+ * folder : File μεταβλητη,δειχνει στον φακελο στον οποιο αποθηκευονται οι ηχογραφησεις
+ * fileToSave : File μεταβλητη στην οποια αποθηκευεται η ηχογραφηση
+ * recorder : Recorder μεταβλητη υπευθυνη για την ηχογραφηση
+ * chronometer : Chronometer που δειχνει στον χρηση ποση ωρα ηχογραφη
+ * recordingDurationText : String μεταβλητη για την μεγιστη διαρκεια της ηχογραφησης
  */
 public class    VoiceRecordActivity extends AppCompatActivity implements SaveDialog.SaveDialogListener,ConfirmDeleteDialog.ConfirmDeleteListener {
 
 
     private ImageButton recordButton,stopPlayingButton,settingsButton;
-    private File folder,temporaryFile,finalFile;
+    private File folder, fileTosSave;
 
     private CustomGridHandler customGridHandler;
     private Recorder recorder;
 
-    private String filename;
-
     private Chronometer chronometer;
-    private Toolbar myToolbar;
     private String recordingDurationText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_voice_record);
-        myToolbar=findViewById(R.id.myToolbar);
+        Toolbar myToolbar=findViewById(R.id.myToolbar);
         setSupportActionBar(myToolbar);
 
         ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.RECORD_AUDIO},PackageManager.PERMISSION_GRANTED);
 
-
         chronometer=findViewById(R.id.simpleChronometer);
 
-
-        //αρικοποιηση
         recordButton =findViewById(R.id.recordButton);
         stopPlayingButton=findViewById(R.id.stopPlayingButton);
         settingsButton=findViewById(R.id.settingsButton);
-
 
         recorder=new Recorder();
 
@@ -102,7 +105,7 @@ public class    VoiceRecordActivity extends AppCompatActivity implements SaveDia
         }
 
         //κλαση που χειριζεται τα αντικειμενα της λιστας με της ηχογραφησεις
-        customGridHandler = new CustomGridHandler(findViewById(R.id.voice_record_activity),getApplicationContext(),this);
+        customGridHandler = new CustomGridHandler(findViewById(R.id.voice_record_activity),getApplicationContext());
         customGridHandler.setCustomGridListener(new CustomGridHandler.CustomGridListener() {
             @Override
             public void onStartPlaying() {
@@ -123,6 +126,9 @@ public class    VoiceRecordActivity extends AppCompatActivity implements SaveDia
         });
     }
 
+    /**
+     * Εμφανιση του ConfirmDeleteDialog
+     */
     private void showConfirmDeleteDialog(){
         ConfirmDeleteDialog confirmDeleteDialog=new ConfirmDeleteDialog();
         confirmDeleteDialog.show(getSupportFragmentManager(),"confirmDeleteDialog");
@@ -135,7 +141,6 @@ public class    VoiceRecordActivity extends AppCompatActivity implements SaveDia
     private void openSettings(){
         hideStopButton();
         customGridHandler.cancel();
-
 
         Intent intent= new Intent(getApplicationContext(),Settings.class);
         String currentLanguage=Locale.getDefault().getLanguage();
@@ -181,6 +186,7 @@ public class    VoiceRecordActivity extends AppCompatActivity implements SaveDia
 
     /**
      * Ξεκιναει η ηχογραφηση
+     * Ελεγχει αν εχουμε την απαραιτητη αδεια,αν δεν την εχουμε σταματαει και την ζηταει
      * Οταν ξεκινησει η ηχογραφηση θελουμε να σταματησουν
      * να παιζουν τυχον αλλες ηχογραφησεις
      * Δινεται ενα dummy ονομα στο αρχειο το οποιο χρησιμοποιειται για την αποθηκευση
@@ -198,12 +204,11 @@ public class    VoiceRecordActivity extends AppCompatActivity implements SaveDia
 
         Toast.makeText(VoiceRecordActivity.this,R.string.started_recording, Toast.LENGTH_SHORT).show();
 
-        String dummy = "dummy";
-        filename=folder+ "/" + dummy + ".mp3"; //δινεται ενα dummy μοναδικο ονομα το οποιο στην συνεχεια αλλαζει.
+        String filename=folder+ "/dummy.mp3"; //δινεται ενα dummy μοναδικο ονομα το οποιο στην συνεχεια αλλαζει.
 
-        temporaryFile=new File(filename );
+        fileTosSave =new File(filename );
 
-        recorder.startRecording(temporaryFile);
+        recorder.startRecording(fileTosSave);
     }
 
     /**
@@ -230,11 +235,20 @@ public class    VoiceRecordActivity extends AppCompatActivity implements SaveDia
         saveDialog.show(getSupportFragmentManager(), "saveDialog");
     }
 
+    /**
+     * Αν πατηθει το positiveButton στο ConfirmDeleteDialog
+     * διαγραφονται τα επιλεγμενα αντικειμενα
+     */
     @Override
     public void deleteFiles() {
         customGridHandler.delete();
     }
 
+    /**
+     * Αν πατηθει το negativeButton στο ConfirmDeleteDialog
+     * ακυρωνεται η επιλογη πολλαπλων αντικειμενων,χωρις να διαγραφουν
+     * τα επιλεγμενα αντικειμενα
+     */
     @Override
     public void deleteCancelled() {
         customGridHandler.cancel();
@@ -245,10 +259,14 @@ public class    VoiceRecordActivity extends AppCompatActivity implements SaveDia
      */
     @Override
     public void cancelled() {
-        temporaryFile.delete();
+        fileTosSave.delete();
     }
 
-
+    /**
+     * Παιρνει το ονομα του file,χωρις την καταληξη ".mp3"
+     * @param file το αρχειο του οποιου θελουμε το ονομα
+     * @return το ονομα του αρχειου χωρις την καταληξη ".mp3"
+     */
     private String getFilename(File file){
         String t=file.getName().replace(".mp3","");
         return t;
@@ -256,17 +274,23 @@ public class    VoiceRecordActivity extends AppCompatActivity implements SaveDia
 
     /**
      * Αλλαζει το ονομα της ηχογραφησης στο επιθυμητο
-     * και το προσθετει στο GridView
+     * και το προσθετει στο GridView,καλειται οταν πατηθει
+     * το positiveButton του SaveDialog
      * @param n το επιθυμητο ονομα
      */
     @Override
     public void saveFileAs(String n) {
-        finalFile=new File(folder + "/" + n + ".mp3");
-        temporaryFile.renameTo(finalFile);
+        File finalFile=new File(folder + "/" + n + ".mp3");
+        fileTosSave.renameTo(finalFile);
         String name=getFilename(finalFile);
         customGridHandler.addToList(finalFile.getPath(),name); //προσθηκη ηχογραφησης στην λιστα αν αλλαξει το name
     }
 
+    /**
+     * Μετονομαζει ενα αρχειο
+     * @param path το μονοπατι του παλιου αρχειου
+     * @param newPath το καινουριου μονοπατι που θελουμε
+     */
     private void renameFile(String path,String newPath){
         File newFile=new File(path);
         newFile.renameTo(new File(newPath));
@@ -326,6 +350,7 @@ public class    VoiceRecordActivity extends AppCompatActivity implements SaveDia
      * Οταν σταματαει η εφαρμογη,πχ παει στο background,ελευθερονεται ο mediaRecorder
      * μεσω της recorded.clear() και ο mediaPlayer μεσω της
      * customListHandler.clear() για να μην σπαταλιζονται ποροι
+     * και απενεργοποιειται η επιλογη πολλαπλων αντικειμενων
      */
     @Override
     public void onStop() {
@@ -338,10 +363,15 @@ public class    VoiceRecordActivity extends AppCompatActivity implements SaveDia
             customGridHandler.stop();
             stopClock();
             recordButton.setImageResource(R.drawable.start_recording_image);
-            temporaryFile.delete();
+            fileTosSave.delete();
         }
         super.onStop();
     }
+
+    /**
+     * Απενεργοποιειται η επιλογη πολλαπλων αντικειμενων,καλειται οταν
+     * ερχεται intent απο την CustomizeItemActivity λογω του flag του
+     */
     @Override
     protected void onRestart() {
         customGridHandler.cancel();
@@ -349,7 +379,14 @@ public class    VoiceRecordActivity extends AppCompatActivity implements SaveDia
     }
 
     /**
-     *
+     * Γινεται override για να διαχειριστουμε το intent που ερχεται απο την
+     * CustomizeItem activity
+     * Αν το intent εχει ως extra το "finished" σημαινει οτι εχουν γινει καποιες αλλαγες
+     *      αν εχει αλλαξει το ονομα,ενημερωνεται το path και το αρχειο του αντικειμενου
+     *      και καλειται η customizeItem
+     * Αν το intent εχει ως extra το "cancelled" σημαινει οτι δεν εγιναν αλλαγες και δεν κανουμε τιποτα
+     * Αν το intent εχει ως extra το "Reset" σημαινει οτι ο χρηστης επιθυμει να επαναφερει
+     * το defaultBackgroundColor και χρωμα κειμενου,αυτο γινεται μεσω της resetItem
      * @param intent
      */
     @Override
@@ -397,11 +434,24 @@ public class    VoiceRecordActivity extends AppCompatActivity implements SaveDia
         }
     }
 
+    /**
+     * Επαναφερει το αντικειμενο στην default κατασταση του μεσω των
+     * item.reset και customGridHandler.reset
+     * @param item το αντικειμενο που θελουμε να κανουμε reset
+     * @param index ο δειχτης του στην λιστα
+     */
     private void resetItem(CustomItem item,int index){
         item.reset();
         customGridHandler.reset(index,item);
     }
 
+    /**
+     * Τροποποιει το αντικειμενο που εχουμε επιλεξει μεσω της
+     * customGridHandler.replace
+     * @param item το αντικειμενο που θα τροποποιειθει
+     * @param index ο δειχτης του στην λιστα
+     * @param previousName το ονομα που ειχε το αντικειμενο πριν την τροποποιηση
+     */
     private void customizeItem(CustomItem item,int index,String previousName){
 
         customGridHandler.replace(index,item,previousName);

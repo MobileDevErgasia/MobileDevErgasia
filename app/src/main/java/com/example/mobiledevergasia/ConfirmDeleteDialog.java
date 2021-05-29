@@ -12,10 +12,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
+/**
+ * Dialog για την επιβεβαίωση διαγραφής αντικειμένων
+ */
 public class ConfirmDeleteDialog  extends AppCompatDialogFragment {
 
     private ConfirmDeleteListener listener;
-    private Context context;
 
     @NonNull
     @Override
@@ -47,10 +49,6 @@ public class ConfirmDeleteDialog  extends AppCompatDialogFragment {
         return confirmDeleteDialog;
     }
 
-    public void setContext(Context context) {
-        this.context = context;
-    }
-
     /**
      * αρχικοποιηση του listener
      *
@@ -67,7 +65,7 @@ public class ConfirmDeleteDialog  extends AppCompatDialogFragment {
     }
 
     /**
-     * Interface που χρησιμοποιειται για να μεταφερουμε δεδομενα στο VoiceRecordActivity που δημιουργει το dialog μας
+     * Interface που χρησιμοποιειται για να ενημερωθεί το VoiceRecordActivity που δημιουργει το dialog μας
      */
     public interface ConfirmDeleteListener {
         void deleteFiles(); //Δειτε VoiceRecordActivity

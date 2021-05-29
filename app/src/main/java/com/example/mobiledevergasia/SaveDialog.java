@@ -27,6 +27,7 @@ import java.util.Locale;
  *                      Μεταβλητες :
  * fileNameTextView :TextView στο οποιο γραφει ο χρηστης το ονομα που θελει να εχει η ηχογραφηση του
  * listener : SaveDialogListener χρησιμοποιειται για την επικοινωνια με την VoiceRecordActivity
+ * folder : File μεταβλητη,δειχνει στον φακελο στον οποιο αποθηκευονται οι ηχογραφησεις
  */
 public class SaveDialog extends AppCompatDialogFragment {
     private EditText fileNameTextView;
@@ -51,7 +52,7 @@ public class SaveDialog extends AppCompatDialogFragment {
                 .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                       // performOkButtonAction();
+                        performOkButtonAction();
                     }
                 }); //δημιουργια save button
 
@@ -69,17 +70,16 @@ public class SaveDialog extends AppCompatDialogFragment {
     }
 
     /**
-     * Ελεγχος αν το string περιεχει μονο γραμματα και/ή νουμερα.
+     * Ελεγχος αν το string περιεχει μονο γραμματα,νουμερα ή τους χαρακτηρες " (,),_".
      * @param string Το ονομα που θα δωθει στο αρχειο
      * @return true οταν δεν περιεχει ειδικους χαρακτηρες, false οταν περιεχει
      */
     private boolean fileNameIsOkay(String string) {
-        if (string == null) // ελεγχει αν το String ειναι null {
+        if (string == null) { // ελεγχει αν το String ειναι null η κενο
             return false;
+        }
         int len = string.length();
         for (int i = 0; i < len; i++) {
-            // ελεγχος αν ο χαρακτηρας δεν ειναι γραμμα ή αριθμος
-            // αν δεν ειναι τελειωνει ο ελεγχος και επιστρεφει false
             char c=string.charAt(i);
             if ((!Character.isLetterOrDigit(c))) {
                 if (c!='_'){
@@ -127,6 +127,10 @@ public class SaveDialog extends AppCompatDialogFragment {
         return false;
     }
 
+    /**
+     * Γινεται override για να κληθει το listener.cancelled()
+     * @param dialog
+     */
     @Override
     public void onCancel(@NonNull DialogInterface dialog) {
         listener.cancelled();
@@ -152,7 +156,6 @@ public class SaveDialog extends AppCompatDialogFragment {
            }
        });
    }
-
 
     /**
      * αρχικοποιηση του listener

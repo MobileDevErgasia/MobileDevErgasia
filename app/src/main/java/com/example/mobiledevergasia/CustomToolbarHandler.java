@@ -1,17 +1,10 @@
 package com.example.mobiledevergasia;
 
-import android.content.Context;
-import android.content.ContextWrapper;
-import android.content.Intent;
+
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.android.material.appbar.AppBarLayout;
-import java.io.File;
-import java.util.ArrayList;
 
 
 /**
@@ -27,21 +20,16 @@ import java.util.ArrayList;
  * counterTextView : TextView για την εμφανιση του πληθους των επιλεγμενων αντικειμενων
  * itemsSelectedTextView : TextView που γραφει "Επιλεγμενα αντικειμενα",χρησιμοποιειται για την αλλαγη γλωσσας του
  * appBarLayout : AppBarLayout,περιερχει το toolbar,χρησιμοποιειται για την εμφανιση και αποκρυψη του
- * filesToDelete : ArrayList<CustomItem> περιεχει τα αντικειμενα τα οποια προκειται να διαγραφουν
  * listener : CustomToolbarListener χρησιμοποιειται απο τον CustomListHandler για την επικοινωνια των 2.
  * καλειται οταν πατιεται ειτε η cancelImageView,ειτε η deleteImageView
  * counter : int μετραει το πληθος των στοιχειων προς διαγραφη και το εμφανιζει μεσω του counterTextView
  */
 public class    CustomToolbarHandler {
 
-    private final ImageView cancelImageView,deleteImageView,editImageview;
+    private final ImageView cancelImageView,deleteImageView, editImageView;
     private  TextView counterTextView,itemsSelectedTextView;
-
     private final AppBarLayout appBarLayout;
-    private ArrayList<CustomItem> filesToDelete;
     private CustomToolbarListener listener;
-    private Context context;
-
     private int counter;
 
     /**Constructor της κλασης.
@@ -51,14 +39,12 @@ public class    CustomToolbarHandler {
     public CustomToolbarHandler(View view){
         cancelImageView=view.findViewById(R.id.cancelImageView);
         deleteImageView=view.findViewById(R.id.deleteImageView);
-        editImageview=view.findViewById(R.id.editImageView);
+        editImageView =view.findViewById(R.id.editImageView);
         appBarLayout=view.findViewById(R.id.appbarlayout);
         counterTextView=view.findViewById(R.id.counterTextView);
         itemsSelectedTextView=view.findViewById(R.id.itemsSelectedTextView);
 
         counter=0;
-
-        filesToDelete=new ArrayList<>();
 
         deleteImageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,7 +61,7 @@ public class    CustomToolbarHandler {
             }
         });
 
-        editImageview.setOnClickListener(new View.OnClickListener() {
+        editImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 listener.onEditImagePressed();
@@ -89,7 +75,7 @@ public class    CustomToolbarHandler {
       *                Χρησιμοποιεται για την επικοινωνια του CustomToolbarHandler και
       *                του CustomListHandler. Συγκριμενα για την περιπτωση που πατηθει
       *                 η cancelImageView,που ακυρωνει την επιλογη αντικειμενων, ή στην
-      *                 περιπτωηση που πατηθει η deleteImageView,που διαγραφει τα
+      *                 περιπτωση που πατηθει η deleteImageView,που διαγραφει τα
       *                 επιλεγμενα αντικειμενα.
      */
     public void setListener(CustomToolbarListener listener){
@@ -105,10 +91,6 @@ public class    CustomToolbarHandler {
         itemsSelectedTextView.setText(R.string.items_selected);
     }
 
-    public void showEditImage(){
-        editImageview.setVisibility(View.VISIBLE);
-    }
-
     /**
      * Αποκρυψη του toolbar,χρησιμοποιεται το View.GONE αντι
      * του View.INVISIBLE ετσι ωστε να μην πιανει χωρο στην οθονη
@@ -116,12 +98,26 @@ public class    CustomToolbarHandler {
      */
     public void hide(){
         appBarLayout.setVisibility(View.GONE);
-        clear();
-
     }
 
+    /**
+     * Εμφανιζει την εικονα editImageView
+     * Η εικονα αυτη ειναι ορατη μονο οταν
+     * ειναι επιλεγμενο ενα και μονο ενα
+     * αντικειμενο
+     */
+    public void showEditImage(){
+        editImageView.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Κρυβει την εικονα editImageView
+     * Η εικονα αυτη ειναι ορατη μονο οταν
+     * ειναι επιλεγμενο ενα και μονο ενα
+     * αντικειμενο
+     */
     public void hideEditImage(){
-        editImageview.setVisibility(View.GONE);
+        editImageView.setVisibility(View.GONE);
     }
 
     /**
@@ -143,15 +139,9 @@ public class    CustomToolbarHandler {
     }
 
     /**
-     * Αδειασμα της λιστας των αρχειων προς διαγραφη.
-     * Καλειται οταν ακυρωνεται η επιλογη πολλαπλων
-     * αντικειμενων.
+     * Επιστρεφει την τιμη του counter
+     * @return η τιμη του counter
      */
-    private void clear(){
-        filesToDelete.clear();
-    }
-
-    //TODO
     public int getCounter(){
         return counter;
     }
@@ -160,9 +150,9 @@ public class    CustomToolbarHandler {
      * Interface της κλασης,αρχικοποιεται απο την CustomListHandler κλαση.
      * Χρησιμοποιεται για την επικοινωνια του CustomToolbarHandler και
      * του CustomListHandler. Συγκριμενα για την περιπτωση που πατηθει
-     *  η cancelImageView,που ακυρωνει την επιλογη αντικειμενων, ή στην
-     *  περιπτωηση που πατηθει η deleteImageView,που διαγραφει τα
-     *  επιλεγμενα αντικειμενα.
+     *  η cancelImageView, ακυρωνει την επιλογη αντικειμενων, στην
+     *  περιπτωση που πατηθει η deleteImageView, καλειται το ConfirmDeleteDialog
+     *  και στην περιπτωση που πατηθει η editImageView ανοιγει το CustomizeItemActivity
      */
     public interface CustomToolbarListener {
          void onDeleteImagePressed() ;
@@ -170,10 +160,4 @@ public class    CustomToolbarHandler {
          void onEditImagePressed();
 
     }
-
-    public void setContext(Context context) {
-        this.context = context;
-    }
 }
-
-
