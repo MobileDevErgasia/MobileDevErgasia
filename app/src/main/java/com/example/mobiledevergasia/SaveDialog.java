@@ -28,17 +28,21 @@ import java.util.Locale;
  * fileNameTextView :TextView στο οποιο γραφει ο χρηστης το ονομα που θελει να εχει η ηχογραφηση του
  * listener : SaveDialogListener χρησιμοποιειται για την επικοινωνια με την VoiceRecordActivity
  * folder : File μεταβλητη,δειχνει στον φακελο στον οποιο αποθηκευονται οι ηχογραφησεις
+ * toast : Toast μεταβλητη για να μην κανουν stack τα μηνυματα προς τον χρηστη αν γινει πολλες φορες
+ * και γρηγορα καποια ενεργεια που το εμφανιζει
  */
 public class SaveDialog extends AppCompatDialogFragment {
     private EditText fileNameTextView;
     private SaveDialogListener listener;
     private File folder;
+    private Toast toast;
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
+        toast=new Toast(getActivity());
 
         View customView = inflater.inflate(R.layout.save_dialog_layout, null); //δημιουργεια του dialog_layout
         builder.setView(customView)
@@ -46,6 +50,7 @@ public class SaveDialog extends AppCompatDialogFragment {
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        toast.cancel();
                         listener.cancelled(); //δηλωνει οτι πατηθηκε το cancel και σε αυτη την περιπτωση δεν αποθηκευεται η ηχογραφηση
                     }
                 }) //δημιουργια cancel button και λειτουργικοτηας του
@@ -102,14 +107,18 @@ public class SaveDialog extends AppCompatDialogFragment {
         if(fileNameIsOkay(filename)){
             if(!fileExists(filename)){
                 listener.saveFileAs(filename);
+                toast.cancel();
                 dismiss();
             }else{
-                Toast.makeText(getActivity(), R.string.file_exists_toast, Toast.LENGTH_SHORT).show();
+                toast.cancel();
+                toast=Toast.makeText(getActivity(),R.string.file_exists_toast,Toast.LENGTH_LONG);
+                toast.show();
             }
 
         }else{
-            //wait for correct input
-            Toast.makeText(getActivity(), R.string.WrongInputMessage, Toast.LENGTH_SHORT).show();
+            toast.cancel();
+            toast=Toast.makeText(getActivity(),R.string.WrongInputMessage,Toast.LENGTH_SHORT);
+            toast.show();
         }
     }
 
@@ -119,9 +128,10 @@ public class SaveDialog extends AppCompatDialogFragment {
      * @return True αν υπαρχει, false αν δεν υπαρχει
      */
     private boolean fileExists(String filename){
+
         File newFile= new File(folder + "/" + filename + ".mp3");
+        System.out.println("MPAINW EDW   " + newFile.toString());
         if(newFile.exists()){
-            newFile.delete();
             return true;
         }
         return false;

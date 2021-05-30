@@ -37,6 +37,8 @@ import java.io.File;
  * nameChanged : boolean μεταβλητη για το αν αλλαξε το ονομα
  * item : CustomItem μεταβλητη για το αντικειμενο που τροποποιειται
  * folder : File μεταβλητη,δειχνει στον φακελο στον οποιο αποθηκευονται οι ηχογραφησεις
+ * toast : Toast μεταβλητη για να μην κανουν stack τα μηνυματα προς τον χρηστη αν γινει πολλες φορες
+ * και γρηγορα καποια ενεργεια που το εμφανιζει
  */
 public class CustomizeItemActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
 
@@ -47,7 +49,7 @@ public class CustomizeItemActivity extends AppCompatActivity implements SeekBar.
     private int red,green,blue,textColor,index;
     private boolean colorChanged,textColorChanged,nameChanged;
     private String name,previousName;
-
+    private Toast toast;
     private CustomItem item;
     private File folder;
 
@@ -80,6 +82,7 @@ public class CustomizeItemActivity extends AppCompatActivity implements SeekBar.
      * Αρχικοποιηση μεταβλητων
      */
     private void initValues(){
+        toast=new Toast(this);
         previousName=item.getName();
         folder=new File(getExternalFilesDir(null) + "/MyRecording/");
         textColor=item.getTextColor();
@@ -207,8 +210,9 @@ public class CustomizeItemActivity extends AppCompatActivity implements SeekBar.
                     if(!name.equals(previousName)){
                         File newFile= new File(folder + "/" + name + ".mp3");
                         if(newFile.exists()){
-                            Toast.makeText(CustomizeItemActivity.this, R.string.file_exists_toast, Toast.LENGTH_SHORT).show();
-                            newFile.delete();
+                           toast.cancel();
+                           toast=Toast.makeText(CustomizeItemActivity.this,R.string.file_exists_toast,Toast.LENGTH_LONG);
+                           toast.show();
                             return;
                         }
                         myIntent.putExtra("previousName",previousName);
@@ -226,12 +230,15 @@ public class CustomizeItemActivity extends AppCompatActivity implements SeekBar.
                     myIntent.putExtra("customItem", item);
                     //χρησιμοποιειται το flag αυτο ετσι ωστε να ερθει στην αρχη της ουρας το instance που υπαρχει ηδη
                     myIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-
                     startActivity(myIntent);
+                    toast.cancel();
                     finish();
 
                 }else{
-                    Toast.makeText(getApplicationContext(), R.string.WrongInputMessage, Toast.LENGTH_SHORT).show();
+                    toast.cancel();
+                    toast=Toast.makeText(CustomizeItemActivity.this,R.string.WrongInputMessage,Toast.LENGTH_SHORT);
+                    toast.show();
+                    //Toast.makeText(getApplicationContext(), R.string.WrongInputMessage, Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -249,6 +256,7 @@ public class CustomizeItemActivity extends AppCompatActivity implements SeekBar.
                 myIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 
                 startActivity(myIntent);
+                toast.cancel();
                 finish();
 
             }
@@ -266,6 +274,7 @@ public class CustomizeItemActivity extends AppCompatActivity implements SeekBar.
                 //χρησιμοποιειται το flag αυτο ετσι ωστε να ερθει στην αρχη της ουρας το instance που υπαρχει ηδη
                 myIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(myIntent);
+                toast.cancel();
                 finish();
             }
         });
