@@ -20,7 +20,7 @@ import java.util.Locale;
  * μεγιστη διαρκεια ηχογραφησης(5,10,15,20)
  * αυτοματη επαναληψη (on,off)
  */
-public class Settings extends PreferenceActivity {
+public class SettingsActivity extends PreferenceActivity {
     private SharedPreferences sharedPreferences;
     private SwitchPreference autoLoopSwitch;
     private ListPreference languageListPreference,durationListPreference;
@@ -43,7 +43,7 @@ public class Settings extends PreferenceActivity {
         languageListPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                setLocale(Settings.this,(String)newValue);
+                setLocale(SettingsActivity.this,(String)newValue);
                 setTitles();
                 return true;
             }

@@ -142,7 +142,7 @@ public class    VoiceRecordActivity extends AppCompatActivity implements SaveDia
         hideStopButton();
         customGridHandler.cancel();
 
-        Intent intent= new Intent(getApplicationContext(),Settings.class);
+        Intent intent= new Intent(getApplicationContext(), SettingsActivity.class);
         String currentLanguage=Locale.getDefault().getLanguage();
         intent.putExtra("language",currentLanguage);
         startActivity(intent);
