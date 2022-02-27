@@ -16,6 +16,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.Chronometer;
 import android.widget.ImageButton;
@@ -55,6 +56,7 @@ public class    VoiceRecordActivity extends AppCompatActivity implements SaveDia
         setContentView(R.layout.activity_voice_record);
         Toolbar myToolbar=findViewById(R.id.myToolbar);
         setSupportActionBar(myToolbar);
+        
 
         ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.RECORD_AUDIO},PackageManager.PERMISSION_GRANTED);
 
@@ -141,7 +143,7 @@ public class    VoiceRecordActivity extends AppCompatActivity implements SaveDia
     private void openSettings(){
         hideStopButton();
         customGridHandler.cancel();
-
+     //   onPause();
         Intent intent= new Intent(getApplicationContext(), SettingsActivity.class);
         String currentLanguage=Locale.getDefault().getLanguage();
         intent.putExtra("language",currentLanguage);
@@ -354,6 +356,7 @@ public class    VoiceRecordActivity extends AppCompatActivity implements SaveDia
      */
     @Override
     public void onStop() {
+        customGridHandler.stop();
         if(customGridHandler.isToCheck()){
             customGridHandler.backPressed();
         }
@@ -367,6 +370,7 @@ public class    VoiceRecordActivity extends AppCompatActivity implements SaveDia
         }
         super.onStop();
     }
+
 
     /**
      * Απενεργοποιειται η επιλογη πολλαπλων αντικειμενων,καλειται οταν
